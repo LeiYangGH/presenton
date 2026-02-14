@@ -28,12 +28,32 @@ WORKDIR /app
 ENV APP_DATA_DIRECTORY=/app_data
 ENV TEMP_DIRECTORY=/tmp/presenton
 ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
+ENV XDG_CACHE_HOME=/app/.cache
 
 # Install dependencies for FastAPI using China mirror (Tsinghua)
 RUN pip install --no-cache-dir -i https://pypi.tuna.tsinghua.edu.cn/simple \
     aiohttp aiomysql aiosqlite asyncpg fastapi[standard] \
     pathvalidate pdfplumber chromadb sqlmodel \
-    anthropic google-genai openai dirtyjson
+    anthropic google-genai openai dirtyjson python-pptx
+RUN pip install --no-cache-dir -i https://pypi.tuna.tsinghua.edu.cn/simple \
+    docling --extra-index-url https://download.pytorch.org/whl/cpu
+
+# Pre-download ChromaDB ONNX models using Hugging Face China mirror
+# Create symlink so /root/.cache points to /app/.cache (which will be preserved in image)
+ENV HF_ENDPOINT=https://hf-mirror.com
+ENV HF_HUB_DOWNLOAD_TIMEOUT=300
+ENV HF_HUB_RETRIES=10
+RUN mkdir -p /app/.cache && \
+    ln -sf /app/.cache /root/.cache && \
+    python3 -c "\
+import chromadb; \
+from chromadb.utils import embedding_functions; \
+client = chromadb.Client(); \
+ef = embedding_functions.DefaultEmbeddingFunction(); \
+collection = client.create_collection(name='test', embedding_function=ef); \
+collection.add(documents=['test'], ids=['1']); \
+print('ChromaDB models downloaded successfully')" && \
+    ls -lh /app/.cache/chroma/ && echo "Models cached in /app/.cache/chroma/"
 
 # Install dependencies for Next.js using China mirror (Taobao)
 WORKDIR /app/servers/nextjs
@@ -53,7 +73,7 @@ WORKDIR /app
 COPY servers/fastapi/ ./servers/fastapi/
 
 # Copy start script and other files
-COPY start.js LICENSE NOTICE ./
+COPY package.json start.js LICENSE NOTICE ./
 
 # Copy nginx configuration
 COPY nginx.conf /etc/nginx/nginx.conf

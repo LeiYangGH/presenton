@@ -4,7 +4,7 @@ import { useEffect, useRef, useCallback, useState } from 'react';
 import { FASTAPI_URL } from '@/constants';
 import { getHeader } from '@/app/(presentation-generator)/services/api/header';
 import { ApiResponseHandler } from '@/app/(presentation-generator)/services/api/api-error-handler';
-import { ProcessedSlide } from '@/app/custom-template/types';
+import { ProcessedSlide } from '@/app/(presentation-generator)/custom-template/types';
 import { CustomTemplateLayout } from '@/app/hooks/useCustomTemplates';
 
 interface LayoutPayload {
@@ -42,11 +42,11 @@ export const useTemplateLayoutsAutoSave = ({
 
         layouts.forEach((layout, index) => {
             const slideState = slideStates[index];
-            if (slideState?.react && layout.rawLayoutId) {
+            if (slideState?.html && layout.rawLayoutId) {
                 payload.push({
                     layout_id: layout.rawLayoutId,
-                    layout_code: slideState.react,
-                    layout_name: slideState.layout_name || `Slide${index + 1}`
+                    layout_code: slideState.html,
+                    layout_name: `Slide${index + 1}`
                 });
             }
         });
