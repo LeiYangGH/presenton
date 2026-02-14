@@ -65,7 +65,7 @@ const setupUserConfigFromEnv = () => {
     existingConfig = JSON.parse(readFileSync(userConfigPath, "utf8"));
   }
 
-  if (!["ollama", "openai", "google"].includes(existingConfig.LLM)) {
+  if (!["ollama", "openai", "google", "custom", "anthropic"].includes(existingConfig.LLM)) {
     existingConfig.LLM = undefined;
   }
 
@@ -92,6 +92,8 @@ const setupUserConfigFromEnv = () => {
     TOOL_CALLS: process.env.TOOL_CALLS || existingConfig.TOOL_CALLS,
     DISABLE_THINKING:
       process.env.DISABLE_THINKING || existingConfig.DISABLE_THINKING,
+    DISABLE_IMAGE_GENERATION:
+      process.env.DISABLE_IMAGE_GENERATION || existingConfig.DISABLE_IMAGE_GENERATION,
     EXTENDED_REASONING:
       process.env.EXTENDED_REASONING || existingConfig.EXTENDED_REASONING,
     WEB_GROUNDING: process.env.WEB_GROUNDING || existingConfig.WEB_GROUNDING,
@@ -129,20 +131,6 @@ const startServers = async () => {
     console.error("FastAPI process failed to start:", err);
   });
 
-  const appmcpProcess = spawn(
-    "python",
-    ["mcp_server.py", "--port", appmcpPort.toString()],
-    {
-      cwd: fastapiDir,
-      stdio: "ignore",
-      env: process.env,
-    }
-  );
-
-  appmcpProcess.on("error", (err) => {
-    console.error("App MCP process failed to start:", err);
-  });
-
   const nextjsProcess = spawn(
     "npm",
     [
@@ -150,7 +138,7 @@ const startServers = async () => {
       isDev ? "dev" : "start",
       "--",
       "-H",
-      "127.0.0.1",
+      "0.0.0.0",
       "-p",
       nextjsPort.toString(),
     ],
@@ -165,21 +153,10 @@ const startServers = async () => {
     console.error("Next.js process failed to start:", err);
   });
 
-  const ollamaProcess = spawn("ollama", ["serve"], {
-    cwd: "/",
-    stdio: "inherit",
-    env: process.env,
-  });
-
-  ollamaProcess.on("error", (err) => {
-    console.error("Ollama process failed to start:", err);
-  });
-
-  // Keep the Node process alive until both servers exit
+  // Keep the Node process alive until one of the servers exits
   const exitCode = await Promise.race([
     new Promise((resolve) => fastApiProcess.on("exit", resolve)),
     new Promise((resolve) => nextjsProcess.on("exit", resolve)),
-    new Promise((resolve) => ollamaProcess.on("exit", resolve)),
   ]);
 
   console.log(`One of the processes exited. Exit code: ${exitCode}`);

@@ -1,0 +1,65 @@
+FROM docker.1ms.run/python:3.11-slim-bookworm
+
+# Use China mirrors for apt (Tsinghua)
+RUN sed -i 's|deb.debian.org|mirrors.tuna.tsinghua.edu.cn|g' /etc/apt/sources.list.d/debian.sources \
+    && sed -i 's|security.debian.org|mirrors.tuna.tsinghua.edu.cn|g' /etc/apt/sources.list.d/debian.sources
+
+# Install system dependencies (no Ollama, optimized layer)
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    nginx \
+    curl \
+    xz-utils \
+    libreoffice \
+    fontconfig \
+    chromium \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Node.js 20 using npmmirror CDN
+RUN curl -fsSL https://cdn.npmmirror.com/binaries/node/v20.18.1/node-v20.18.1-linux-x64.tar.xz -o /tmp/node.tar.xz \
+    && tar -xJf /tmp/node.tar.xz -C /usr/local --strip-components=1 \
+    && rm /tmp/node.tar.xz \
+    && node --version && npm --version
+
+# Create a working directory
+WORKDIR /app
+
+# Set environment variables
+ENV APP_DATA_DIRECTORY=/app_data
+ENV TEMP_DIRECTORY=/tmp/presenton
+ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
+
+# Install dependencies for FastAPI using China mirror (Tsinghua)
+RUN pip install --no-cache-dir -i https://pypi.tuna.tsinghua.edu.cn/simple \
+    aiohttp aiomysql aiosqlite asyncpg fastapi[standard] \
+    pathvalidate pdfplumber chromadb sqlmodel \
+    anthropic google-genai openai dirtyjson
+
+# Install dependencies for Next.js using China mirror (Taobao)
+WORKDIR /app/servers/nextjs
+COPY servers/nextjs/package.json servers/nextjs/package-lock.json ./
+RUN npm install --registry=https://registry.npmmirror.com
+
+# Copy Next.js app
+COPY servers/nextjs/ /app/servers/nextjs/
+
+# Build the Next.js app
+WORKDIR /app/servers/nextjs
+RUN npm run build
+
+WORKDIR /app
+
+# Copy FastAPI
+COPY servers/fastapi/ ./servers/fastapi/
+
+# Copy start script and other files
+COPY start.js LICENSE NOTICE ./
+
+# Copy nginx configuration
+COPY nginx.conf /etc/nginx/nginx.conf
+
+# Expose ports
+EXPOSE 80 3000 8000
+
+# Start the servers
+CMD ["node", "/app/start.js"]

@@ -451,3 +451,6 @@ export function getLayoutByLayoutId(layout: string): TemplateWithData | undefine
     }
     return undefined;
 }
+
+// Re-export types from utils
+export type { TemplateLayoutsWithSettings } from "./utils";
