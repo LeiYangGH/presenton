@@ -38,22 +38,15 @@ RUN pip install --no-cache-dir -i https://pypi.tuna.tsinghua.edu.cn/simple \
 RUN pip install --no-cache-dir -i https://pypi.tuna.tsinghua.edu.cn/simple \
     docling --extra-index-url https://download.pytorch.org/whl/cpu
 
-# Pre-download ChromaDB ONNX models using Hugging Face China mirror
-# Create symlink so /root/.cache points to /app/.cache (which will be preserved in image)
-ENV HF_ENDPOINT=https://hf-mirror.com
-ENV HF_HUB_DOWNLOAD_TIMEOUT=300
-ENV HF_HUB_RETRIES=10
-RUN mkdir -p /app/.cache && \
-    ln -sf /app/.cache /root/.cache && \
-    python3 -c "\
-import chromadb; \
-from chromadb.utils import embedding_functions; \
-client = chromadb.Client(); \
-ef = embedding_functions.DefaultEmbeddingFunction(); \
-collection = client.create_collection(name='test', embedding_function=ef); \
-collection.add(documents=['test'], ids=['1']); \
-print('ChromaDB models downloaded successfully')" && \
-    ls -lh /app/.cache/chroma/ && echo "Models cached in /app/.cache/chroma/"
+# Pre-copy ChromaDB ONNX model from local
+# Copy the pre-downloaded onnx.tar.gz and extract it
+RUN mkdir -p /app/.cache/chroma/models
+COPY onnx.tar.gz /app/.cache/chroma/models/onnx.tar.gz
+RUN cd /app/.cache/chroma/models && \
+    tar -xzf onnx.tar.gz && \
+    rm onnx.tar.gz && \
+    ls -lh /app/.cache/chroma/models/ && \
+    echo "Model cached from local file"
 
 # Install dependencies for Next.js using China mirror (Taobao)
 WORKDIR /app/servers/nextjs

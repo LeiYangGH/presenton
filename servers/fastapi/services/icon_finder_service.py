@@ -17,7 +17,7 @@ class IconFinderService:
 
     def _initialize_icons_collection(self):
         self.embedding_function = ONNXMiniLM_L6_V2()
-        self.embedding_function.DOWNLOAD_PATH = "chroma/models"
+        self.embedding_function.DOWNLOAD_PATH = "/app/.cache/chroma/models"
         self.embedding_function._download_model_if_not_exists()
         try:
             self.collection = self.client.get_collection(
