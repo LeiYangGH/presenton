@@ -1,35 +1,35 @@
-# Upstream Changes Summary (Feb 2026 - Apr 2026)
+# 上游变更摘要 (2026年2月 - 4月)
 
-This document summarizes the major updates in the `main` branch of Presenton since late February 2026 and their potential impact on the `lite` branch.
+本文档总结了自 2026 年 2 月底以来 Presenton 主分支（main 分支）的主要更新，并分析了这些变更对 `lite` 分支的潜在影响。
 
-## 1. Electron Desktop Support
-The most significant architectural change is the introduction of a native desktop application powered by Electron.
-- **Integrated Dependencies:** The desktop app now includes built-in installers for critical dependencies like **LibreOffice** (for PPTX/PDF conversion) and **Chromium** (via Puppeteer). This removes the previous requirement for users to manually install these on their host system.
-- **Local-First Architecture:** While the Docker version remains supported, the Electron version optimizes for local execution with SQLite and local file management.
-- **Monitoring & Telemetry:** Integration of **Sentry** for error tracking and **Mixpanel** for advanced usage analytics.
-- **Unified Build Process:** New build scripts (`build:all`) automate the packaging of FastAPI (via PyInstaller) and Next.js into a single executable.
+## 1. Electron 桌面端支持
+架构上最显著的变化是引入了基于 Electron 的原生桌面应用程序。
+- **集成依赖：** 桌面端现在内置了关键依赖的安装程序，包括 **LibreOffice**（用于 PPTX/PDF 转换）和 **Chromium**（通过 Puppeteer）。这消除了以前需要用户在宿主系统上手动安装这些工具的需求。
+- **本地优先架构：** 虽然 Docker 版本仍受支持，但 Electron 版本针对本地运行进行了优化，采用了 SQLite 和本地文件管理系统。
+- **监控与遥测：** 集成了 **Sentry** 用于错误追踪，以及 **Mixpanel** 用于高级使用情况分析。
+- **统一构建流程：** 新的构建脚本（`build:all`）实现了将 FastAPI（通过 PyInstaller）和 Next.js 自动化打包进单个可执行文件的流程。
 
-## 2. PPTX Generation & Quality Improvements
-Significant effort has been put into improving the reliability and quality of generated presentations.
-- **Overflow Mitigation (Schema Validation Loop):** A new recursive loop in `LLMClient.generate_structured` validates LLM output against the JSON schema. If character limits are exceeded or the structure is invalid, the error is fed back to the LLM for automatic correction (up to 5 retries).
-- **Strict Prompt Engineering:** System prompts have been revamped to enforce strict character limits for every field, preventing text clipping in UI and exported files.
-- **Font Resolution:** Added support for resolving and embedding specific fonts in presentations, ensuring the exported PPTX matches the web preview.
-- **Document Decomposition:** Integration of **LiteParse** and **Docling** services for more accurate processing of uploaded documents (PDFs, Word, etc.) into presentation outlines.
+## 2. PPTX 生成与质量提升
+项目在提高生成演示文稿的可靠性和质量方面投入了大量精力。
+- **溢出缓解（Schema 验证循环）：** 在 `LLMClient.generate_structured` 中引入了新的递归循环，根据 JSON Schema 验证 LLM 的输出。如果输出超出了字符限制或结构无效，错误信息会反馈给 LLM 进行自动修正（最多重试 5 次）。
+- **严格的提示词工程：** 重构了系统提示词（System Prompts），为每个字段强制执行严格的字符限制，防止文本在 UI 和导出的文件中出现截断（Clipping）。
+- **字体解析：** 增加了在演示文稿中解析和嵌入特定字体的支持，确保导出的 PPTX 与网页预览效果一致。
+- **文档分解：** 集成了 **LiteParse** 和 **Docling** 服务，能够更准确地将上传的文档（PDF、Word 等）处理为演示文稿大纲。
 
-## 3. Templates and Themes
-- **New Core Templates:** Four professional templates were added: **Code**, **Education**, **Product Overview**, and **Report**.
-- **Custom Template UI:** A completely revamped interface for creating and managing custom templates, allowing developers/users to build their own designs using HTML/Tailwind.
-- **Theme Management:** Improved color palette generation and theme application across all slide layouts.
-- **Code Highlighting:** Enhanced support for code blocks within templates, including syntax highlighting.
+## 3. 模板与主题
+- **新增核心模板：** 增加了四个专业模板：**Code (代码)**、**Education (教育)**、**Product Overview (产品概述)** 和 **Report (报告)**。
+- **自定义模板 UI：** 全新设计的界面，用于创建和管理自定义模板，允许开发者和用户使用 HTML/Tailwind CSS 构建自己的设计。
+- **主题管理：** 改进了调色板生成算法，并优化了主题在所有幻灯片布局中的应用效果。
+- **代码高亮：** 增强了模板内代码块的支持，包括语法高亮功能。
 
-## 4. Stability & Infrastructure
-- **Database Migrations:** Transitioned to a more robust migration system that automatically syncs the database schema on startup, supporting legacy database migrations.
-- **Provider Enhancements:** Better support for **Anthropic (Claude)**, **Google (Gemini)**, and **Codex**, including improved streaming logic and retry mechanisms.
-- **Ollama Integration:** Improved handling of local Ollama models, including model metadata fetching and status reporting.
+## 4. 稳定性与基础设施
+- **数据库迁移：** 过渡到更健壮的迁移系统，支持在启动时自动同步数据库 Schema，并支持旧版数据库的迁移。
+- **模型提供商增强：** 优化了对 **Anthropic (Claude)**、**Google (Gemini)** 和 **Codex** 的支持，包括改进的流式传输逻辑和重试机制。
+- **Ollama 集成：** 改进了对本地 Ollama 模型的处理，包括模型元数据获取和状态报告。
 
-## 5. Impact on Lite Branch
-Since the `lite` branch is likely focused on a lightweight, Docker-based or API-only deployment:
-- **Feature Parity:** The `lite` branch benefits from the improved prompts and the **Schema Validation Loop**, which significantly reduces "broken" generation results.
-- **Dependency Management:** The new `Dockerfile.lite` and related changes in `main` might conflict if they assume the presence of Electron-specific binaries.
-- **Export Logic:** Changes to `export_utils` and the use of specialized conversion binaries (managed by `sync_export_runtime.js`) may require the `lite` branch to ensure it has the correct version of the conversion tool compatible with its environment.
-- **Schema Changes:** Recent database schema updates (themes, fonts) will require a migration if existing data is being preserved.
+## 5. 对 Lite 分支的影响
+鉴于 `lite` 分支通常专注于轻量化、基于 Docker 或仅 API 的部署：
+- **功能对齐：** `lite` 分支将受益于改进后的提示词和 **Schema 验证循环**，这能显著减少生成结果“损坏”的情况。
+- **依赖管理：** `main` 分支中新的 `Dockerfile.lite` 和相关更改可能会产生冲突，如果它们假设存在 Electron 特有的二进制文件。
+- **导出逻辑：** `export_utils` 的更改以及对特定转换二进制文件（由 `sync_export_runtime.js` 管理）的使用，可能需要 `lite` 分支确保其环境中有与其兼容的转换工具版本。
+- **Schema 变更：** 最近的数据库 Schema 更新（增加了主题、字体等字段）在保留现有数据的情况下需要执行迁移。
