@@ -35,9 +35,12 @@ export interface SetupStatus {
 /**
  * Returns the path to the browser executable to use for Puppeteer: either
  * Chrome (Puppeteer default) if present, or Chromium from the cache.
+ *
+ * NOTE: Detection must NOT be gated by shouldSkipDownload(). That flag only
+ * controls whether npm postinstall downloads a browser; it must never prevent
+ * the app from finding an already-installed browser at runtime.
  */
 export async function getPuppeteerExecutablePath(): Promise<string | undefined> {
-  if (shouldSkipDownload()) return undefined;
   const chromePath = puppeteer.executablePath();
   if (chromePath && fs.existsSync(chromePath)) return chromePath;
   const cacheDir = getPuppeteerCacheDir();
@@ -58,7 +61,6 @@ export async function getPuppeteerExecutablePath(): Promise<string | undefined> 
  * Returns true if a supported browser (Chrome or Chromium) is already installed.
  */
 export async function isChromeInstalled(): Promise<boolean> {
-  if (shouldSkipDownload()) return false;
   const execPath = await getPuppeteerExecutablePath();
   return Boolean(execPath);
 }

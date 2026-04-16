@@ -30,7 +30,7 @@
     "dist": "electron-builder",
     "postinstall": "electron-builder install-app-deps",
     "dev": "shx rm -rf app_dist && tsc && electron . --no-sandbox",
-    "setup:env": "npm install && cd servers/fastapi && uv sync && cd ../../servers/nextjs && npm install && cd ../.. && npm run setup:export-runtime",
+    "setup:env": "npm install && cd servers/fastapi && uv sync && cd ../../servers/nextjs && cross-env CYPRESS_INSTALL_BINARY=0 npm install && cd ../.. && npm run setup:export-runtime",
     "install:pyinstaller": "cd servers/fastapi && echo 'pyinstaller already in dependencies'",
     "build:ts": "shx rm -rf app_dist && tsc",
     "build:css": "tailwindcss -i ./resources/ui/assets/css/tailwind.import.css -o ./resources/ui/assets/css/tailwind.css --watch",

@@ -38,8 +38,8 @@ electron/.cache/export-runtime/
 # Large binary/data files
 resources/export/py/convert-*
 servers/fastapi/assets/icons-vectorstore.json
-.puppeteerrc.cjs.bak
-servers/nextjs/.puppeteerrc.cjs.bak
+.puppeteerrc.cjs
+servers/nextjs/.puppeteerrc.cjs
 
 # Agent skill artifacts
 .agents/
