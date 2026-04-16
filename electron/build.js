@@ -89,29 +89,14 @@ const config = {
     recommends: ["libreoffice"],
   },
   win: {
-    target: ["nsis", "appx"],
+    target: ["portable"],
     icon: "build/icon.ico",
-    artifactName: "Presenton-${version}.${ext}",
+    artifactName: "Presenton-Portable-${version}.${ext}",
     executableName: "Presenton",
   },
-  nsis: {
-    oneClick: false,
-    perMachine: false,
-    allowToChangeInstallationDirectory: true,
-    allowElevation: true,
-    installerIcon: "build/icon.ico",
-    uninstallerIcon: "build/icon.ico",
-    installerHeaderIcon: "build/icon.ico",
-    createDesktopShortcut: true,
-    createStartMenuShortcut: true,
-    shortcutName: "Presenton",
-    uninstallDisplayName: "Presenton",
-  },
-  appx: {
-    identityName: "PresentonAI.Presenton",
-    publisher: "CN=8A2C57B5-F1C6-473A-93EE-2E9B72134341",
-    publisherDisplayName: "Presenton AI",
-    applicationId: "PresentonAI.Presenton",
+  portable: {
+    artifactName: "Presenton-Portable-${version}.${ext}",
+    requestExecutionLevel: "user",
   },
 }
 

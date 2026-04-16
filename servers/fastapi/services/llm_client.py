@@ -102,52 +102,26 @@ class LLMClient:
     # ? Clients
     def _get_client(self):
         match self.llm_provider:
+            case LLMProvider.LOCAL_LLAMA:
+                return self._get_local_llama_client()
             case LLMProvider.OPENAI:
                 return self._get_openai_client()
             case LLMProvider.GOOGLE:
                 return self._get_google_client()
             case LLMProvider.ANTHROPIC:
                 return self._get_anthropic_client()
-            case LLMProvider.OLLAMA:
-                return self._get_ollama_client()
             case LLMProvider.CUSTOM:
                 return self._get_custom_client()
             case LLMProvider.CODEX:
                 return self._get_codex_client()
             case _:
-                raise HTTPException(
-                    status_code=400,
-                    detail="LLM Provider must be either openai, google, anthropic, ollama, custom, or codex",
-                )
+                return self._get_local_llama_client()
 
-    def _get_openai_client(self):
-        if not get_openai_api_key_env():
-            raise HTTPException(
-                status_code=400,
-                detail="OpenAI API Key is not set",
-            )
-        return AsyncOpenAI()
-
-    def _get_google_client(self):
-        if not get_google_api_key_env():
-            raise HTTPException(
-                status_code=400,
-                detail="Google API Key is not set",
-            )
-        return genai.Client()
-
-    def _get_anthropic_client(self):
-        if not get_anthropic_api_key_env():
-            raise HTTPException(
-                status_code=400,
-                detail="Anthropic API Key is not set",
-            )
-        return AsyncAnthropic()
-
-    def _get_ollama_client(self):
+    def _get_local_llama_client(self):
+        # 优先支持本地 8989 端口的 llama.server (OpenAI 兼容)
         return AsyncOpenAI(
-            base_url=(get_ollama_url_env() or "http://localhost:11434") + "/v1",
-            api_key="ollama",
+            base_url="http://127.0.0.1:8989/v1",
+            api_key="local-llama",
         )
 
     def _get_custom_client(self):

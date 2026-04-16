@@ -42,8 +42,8 @@
     "build:nextjs": "rm -rf resources/nextjs && rm -rf servers/nextjs/.next-build && cd servers/nextjs && cross-env BUILD_TARGET=electron npm run build && cp -r .next-build ../../resources/nextjs && cp -r app/presentation-templates ../../resources/nextjs/presentation-templates",
     "build:fastapi": "rm -rf resources/fastapi && npm run build:vectorstore && node scripts/prepare_fastapi_migrations.js && cd servers/fastapi && uv run python -m PyInstaller --distpath ../../resources server.spec",
     "generate:version": "node generate_update.js",
-    "build:electron": "npm run generate:version && npm run build:export-runtime && rm -rf app_dist && tsc && node build.js",
-    "build:all": "npm run clean:build && npm run setup:env && npm run build:ts && npm run install:pyinstaller && npm run build:nextjs && npm run build:fastapi && npm run build:electron",
+    "build:electron": "npm run generate:version && npm run build:export-runtime && rm -rf app_dist && tsc && set ELECTRON_MIRROR=https://npmmirror.com/mirrors/electron/ && set ELECTRON_BUILDER_BINARIES_MIRROR=https://npmmirror.com/mirrors/electron-builder-binaries/ && node build.js",
+    "build:all": "npm config set registry https://registry.npmmirror.com && pip config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple && npm run clean:build && npm run setup:env && npm run build:ts && npm run install:pyinstaller && npm run build:nextjs && npm run build:fastapi && npm run build:electron",
     "clean:build": "rm -rf resources/nextjs && rm -rf resources/fastapi && rm -rf app_dist"
   },
   "author": {
