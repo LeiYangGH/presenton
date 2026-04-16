@@ -1,13 +1,15 @@
 /**
  * LibreOffice download URLs for automated installation.
- * Uses direct CDN URLs (download.documentfoundation.org) — the donate URLs
- * return HTML pages instead of the actual installer on Windows.
+ * Uses TUNA mirror (mirrors.tuna.tsinghua.edu.cn) for faster downloads in China.
+ * Fallback: https://download.documentfoundation.org/libreoffice/stable
  * Update the version when upgrading to a newer LibreOffice release.
  * See https://www.libreoffice.org/download/download-libreoffice/
  */
 export const LIBREOFFICE_VERSION = "25.8.5";
 
-const CDN_BASE = "https://download.documentfoundation.org/libreoffice/stable";
+const CDN_BASE =
+  process.env.LIBREOFFICE_MIRROR_URL ||
+  "https://mirrors.tuna.tsinghua.edu.cn/libreoffice/libreoffice/stable";
 
 export const LIBREOFFICE_DOWNLOAD_URLS = {
   win64: `${CDN_BASE}/${LIBREOFFICE_VERSION}/win/x86_64/LibreOffice_${LIBREOFFICE_VERSION}_Win_x86-64.msi`,

@@ -20,6 +20,11 @@ import {
   install,
   resolveBuildId,
 } from "@puppeteer/browsers";
+
+// China mainland mirror for Chromium browser snapshots (npmmirror)
+const CHROMIUM_MIRROR_BASE_URL =
+  process.env.PUPPETEER_DOWNLOAD_BASE_URL ||
+  "https://registry.npmmirror.com/-/binary/chromium-browser-snapshots";
 import { getSetupStatus } from "../utils/setup-dependencies";
 import {
   getImageMagickBinaryPath,
@@ -344,6 +349,7 @@ export function setupSetupInstallHandlers() {
           platform,
           browser: Browser.CHROMIUM,
           buildId,
+          baseUrl: CHROMIUM_MIRROR_BASE_URL,
           downloadProgressCallback: (downloadedBytes, totalBytes) => {
             if (totalBytes > 0 && !wc.isDestroyed()) {
               const percent = Math.min(

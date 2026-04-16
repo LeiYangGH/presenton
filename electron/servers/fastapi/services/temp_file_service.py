@@ -54,9 +54,15 @@ class TempFileService:
         if os.path.exists(dir_path):
             for root, dirs, files in os.walk(dir_path, topdown=False):
                 for name in files:
-                    os.remove(os.path.join(root, name))
+                    try:
+                        os.remove(os.path.join(root, name))
+                    except FileNotFoundError:
+                        pass
                 for name in dirs:
-                    os.rmdir(os.path.join(root, name))
+                    try:
+                        os.rmdir(os.path.join(root, name))
+                    except (FileNotFoundError, OSError):
+                        pass
 
     def cleanup_temp_dir(self, dir_path: str):
         if os.path.exists(dir_path):

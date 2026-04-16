@@ -42,9 +42,14 @@ export async function getPuppeteerExecutablePath(): Promise<string | undefined> 
   if (chromePath && fs.existsSync(chromePath)) return chromePath;
   const cacheDir = getPuppeteerCacheDir();
   const browsers = await getInstalledBrowsers({ cacheDir });
+  // Check for Chromium first, then fall back to Chrome for Testing
   const chromium = browsers.find((b) => b.browser === Browser.CHROMIUM);
   if (chromium?.executablePath && fs.existsSync(chromium.executablePath)) {
     return chromium.executablePath;
+  }
+  const chrome = browsers.find((b) => b.browser === Browser.CHROME);
+  if (chrome?.executablePath && fs.existsSync(chrome.executablePath)) {
+    return chrome.executablePath;
   }
   return undefined;
 }

@@ -29,22 +29,22 @@
     "start": "electron . --no-sandbox",
     "dist": "electron-builder",
     "postinstall": "electron-builder install-app-deps",
-    "dev": "rm -rf app_dist && tsc && electron . --no-sandbox",
+    "dev": "shx rm -rf app_dist && tsc && electron . --no-sandbox",
     "setup:env": "npm install && cd servers/fastapi && uv sync && cd ../../servers/nextjs && npm install && cd ../.. && npm run setup:export-runtime",
     "install:pyinstaller": "cd servers/fastapi && echo 'pyinstaller already in dependencies'",
-    "build:ts": "rm -rf app_dist && tsc",
+    "build:ts": "shx rm -rf app_dist && tsc",
     "build:css": "tailwindcss -i ./resources/ui/assets/css/tailwind.import.css -o ./resources/ui/assets/css/tailwind.css --watch",
     "build:vectorstore": "cd servers/fastapi && uv run python build_vectorstore.py",
     "build:export-runtime": "node sync_export_runtime.js",
     "setup:export-runtime": "node sync_export_runtime.js",
     "fetch:export-runtime": "node sync_export_runtime.js --force",
     "fetch:export-runtime:latest": "EXPORT_RUNTIME_VERSION=latest node sync_export_runtime.js --force",
-    "build:nextjs": "rm -rf resources/nextjs && rm -rf servers/nextjs/.next-build && cd servers/nextjs && cross-env BUILD_TARGET=electron npm run build && cp -r .next-build ../../resources/nextjs && cp -r app/presentation-templates ../../resources/nextjs/presentation-templates",
-    "build:fastapi": "rm -rf resources/fastapi && npm run build:vectorstore && node scripts/prepare_fastapi_migrations.js && cd servers/fastapi && uv run python -m PyInstaller --distpath ../../resources server.spec",
+    "build:nextjs": "shx rm -rf resources/nextjs && shx rm -rf servers/nextjs/.next-build && cd servers/nextjs && cross-env BUILD_TARGET=electron npm run build && shx cp -r .next-build ../../resources/nextjs && shx cp -r app/presentation-templates ../../resources/nextjs/presentation-templates",
+    "build:fastapi": "shx rm -rf resources/fastapi && npm run build:vectorstore && node scripts/prepare_fastapi_migrations.js && cd servers/fastapi && uv run python -m PyInstaller --distpath ../../resources server.spec",
     "generate:version": "node generate_update.js",
-    "build:electron": "npm run generate:version && npm run build:export-runtime && rm -rf app_dist && tsc && set ELECTRON_MIRROR=https://npmmirror.com/mirrors/electron/ && set ELECTRON_BUILDER_BINARIES_MIRROR=https://npmmirror.com/mirrors/electron-builder-binaries/ && node build.js",
+    "build:electron": "npm run generate:version && npm run build:export-runtime && shx rm -rf app_dist && tsc && node build.js",
     "build:all": "npm config set registry https://registry.npmmirror.com && pip config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple && npm run clean:build && npm run setup:env && npm run build:ts && npm run install:pyinstaller && npm run build:nextjs && npm run build:fastapi && npm run build:electron",
-    "clean:build": "rm -rf resources/nextjs && rm -rf resources/fastapi && rm -rf app_dist"
+    "clean:build": "shx rm -rf resources/nextjs && shx rm -rf resources/fastapi && shx rm -rf app_dist"
   },
   "author": {
     "name": "Presenton",
@@ -69,6 +69,7 @@
     "cross-env": "^7.0.3",
     "electron": "^36.1.0",
     "electron-builder": "^26.0.12",
+    "shx": "^0.4.0",
     "typescript": "^5.8.3"
   },
   "peerDependencies": {

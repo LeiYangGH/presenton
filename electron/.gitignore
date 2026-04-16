@@ -35,6 +35,12 @@ electron/.cache/export-runtime/
 *.zip
 *.pyc
 
+# Large binary/data files
+resources/export/py/convert-*
+servers/fastapi/assets/icons-vectorstore.json
+.puppeteerrc.cjs.bak
+servers/nextjs/.puppeteerrc.cjs.bak
+
 # Agent skill artifacts
 .agents/
 skills-lock.json
