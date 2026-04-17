@@ -49,6 +49,10 @@ class UserConfig(BaseModel):
     # Web Search
     WEB_GROUNDING: Optional[bool] = None
 
+    # Proxy
+    HTTP_PROXY: Optional[str] = None
+    HTTPS_PROXY: Optional[str] = None
+
     # Codex OAuth (ChatGPT)
     CODEX_MODEL: Optional[str] = None
     CODEX_ACCESS_TOKEN: Optional[str] = None

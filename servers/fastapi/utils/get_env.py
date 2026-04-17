@@ -106,3 +106,11 @@ def get_open_webui_image_url_env():
 
 def get_open_webui_image_api_key_env():
     return os.getenv("OPEN_WEBUI_IMAGE_API_KEY")
+
+
+def get_http_proxy_env():
+    return os.getenv("HTTP_PROXY") or os.getenv("http_proxy")
+
+
+def get_https_proxy_env():
+    return os.getenv("HTTPS_PROXY") or os.getenv("https_proxy")

@@ -170,3 +170,11 @@ def get_sentry_traces_sample_rate_env():
 
 def get_sentry_send_default_pii_env():
     return os.getenv("SENTRY_SEND_DEFAULT_PII")
+
+
+def get_http_proxy_env():
+    return os.getenv("HTTP_PROXY") or os.getenv("http_proxy")
+
+
+def get_https_proxy_env():
+    return os.getenv("HTTPS_PROXY") or os.getenv("https_proxy")

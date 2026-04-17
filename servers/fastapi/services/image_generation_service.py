@@ -14,6 +14,8 @@ from utils.get_env import (
     get_pexels_api_key_env,
     get_open_webui_image_url_env,
     get_open_webui_image_api_key_env,
+    get_http_proxy_env,
+    get_https_proxy_env,
 )
 from utils.get_env import get_pixabay_api_key_env
 from utils.get_env import get_comfyui_url_env
@@ -270,19 +272,27 @@ class ImageGenerationService:
         )
 
     async def get_image_from_pexels(self, prompt: str) -> str:
+        # Get proxy configuration
+        proxy = get_https_proxy_env() or get_http_proxy_env()
+
         async with aiohttp.ClientSession(trust_env=True) as session:
             response = await session.get(
                 f"https://api.pexels.com/v1/search?query={prompt}&per_page=1",
                 headers={"Authorization": f"{get_pexels_api_key_env()}"},
+                proxy=proxy if proxy else None,
             )
             data = await response.json()
             image_url = data["photos"][0]["src"]["large"]
             return image_url
 
     async def get_image_from_pixabay(self, prompt: str) -> str:
+        # Get proxy configuration
+        proxy = get_https_proxy_env() or get_http_proxy_env()
+
         async with aiohttp.ClientSession(trust_env=True) as session:
             response = await session.get(
-                f"https://pixabay.com/api/?key={get_pixabay_api_key_env()}&q={prompt}&image_type=photo&per_page=3"
+                f"https://pixabay.com/api/?key={get_pixabay_api_key_env()}&q={prompt}&image_type=photo&per_page=3",
+                proxy=proxy if proxy else None,
             )
             data = await response.json()
             image_url = data["hits"][0]["largeImageURL"]

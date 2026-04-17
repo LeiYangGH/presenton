@@ -24,6 +24,8 @@ from utils.get_env import (
     get_web_grounding_env,
     get_open_webui_image_url_env,
     get_open_webui_image_api_key_env,
+    get_http_proxy_env,
+    get_https_proxy_env,
 )
 from utils.parsers import parse_bool_or_none
 from utils.set_env import (
@@ -47,6 +49,8 @@ from utils.set_env import (
     set_web_grounding_env,
     set_open_webui_image_url_env,
     set_open_webui_image_api_key_env,
+    set_http_proxy_env,
+    set_https_proxy_env,
 )
 
 
@@ -105,6 +109,8 @@ def get_user_config():
         ),
         OPEN_WEBUI_IMAGE_URL=existing_config.OPEN_WEBUI_IMAGE_URL or get_open_webui_image_url_env(),
         OPEN_WEBUI_IMAGE_API_KEY=existing_config.OPEN_WEBUI_IMAGE_API_KEY or get_open_webui_image_api_key_env(),
+        HTTP_PROXY=existing_config.HTTP_PROXY or get_http_proxy_env(),
+        HTTPS_PROXY=existing_config.HTTPS_PROXY or get_https_proxy_env(),
     )
 
 
@@ -150,3 +156,7 @@ def update_env_with_user_config():
         set_open_webui_image_url_env(user_config.OPEN_WEBUI_IMAGE_URL)
     if user_config.OPEN_WEBUI_IMAGE_API_KEY:
         set_open_webui_image_api_key_env(user_config.OPEN_WEBUI_IMAGE_API_KEY)
+    if user_config.HTTP_PROXY:
+        set_http_proxy_env(user_config.HTTP_PROXY)
+    if user_config.HTTPS_PROXY:
+        set_https_proxy_env(user_config.HTTPS_PROXY)

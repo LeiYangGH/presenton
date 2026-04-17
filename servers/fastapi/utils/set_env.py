@@ -88,3 +88,11 @@ def set_open_webui_image_url_env(value: str):
 
 def set_open_webui_image_api_key_env(value: str):
     os.environ["OPEN_WEBUI_IMAGE_API_KEY"] = value
+
+
+def set_http_proxy_env(value: str):
+    os.environ["HTTP_PROXY"] = value
+
+
+def set_https_proxy_env(value: str):
+    os.environ["HTTPS_PROXY"] = value

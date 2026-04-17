@@ -14,6 +14,8 @@ from utils.get_env import (
     get_gpt_image_1_5_quality_env,
     get_next_public_fast_api_env,
     get_pexels_api_key_env,
+    get_http_proxy_env,
+    get_https_proxy_env,
 )
 from utils.get_env import get_pixabay_api_key_env
 from utils.get_env import get_comfyui_url_env
@@ -235,12 +237,16 @@ class ImageGenerationService:
         per_page = max(1, min(limit, 80))
         resolved_api_key = (api_key or get_pexels_api_key_env() or "").strip()
 
+        # Get proxy configuration
+        proxy = get_https_proxy_env() or get_http_proxy_env()
+
         async with aiohttp.ClientSession(trust_env=True) as session:
             response = await session.get(
                 "https://api.pexels.com/v1/search",
                 params={"query": prompt, "per_page": per_page},
                 headers={"Authorization": resolved_api_key} if resolved_api_key else {},
                 timeout=aiohttp.ClientTimeout(total=20),
+                proxy=proxy if proxy else None,
             )
 
             if response.status in {401, 403}:
@@ -270,6 +276,9 @@ class ImageGenerationService:
         per_page = max(3, min(limit, 200))
         resolved_api_key = (api_key or get_pixabay_api_key_env() or "").strip()
 
+        # Get proxy configuration
+        proxy = get_https_proxy_env() or get_http_proxy_env()
+
         async with aiohttp.ClientSession(trust_env=True) as session:
             response = await session.get(
                 "https://pixabay.com/api/",
@@ -280,6 +289,7 @@ class ImageGenerationService:
                     "per_page": per_page,
                 },
                 timeout=aiohttp.ClientTimeout(total=20),
+                proxy=proxy if proxy else None,
             )
 
             if response.status in {401, 403}:

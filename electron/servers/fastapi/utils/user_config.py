@@ -36,6 +36,8 @@ from utils.get_env import (
     get_codex_email_env,
     get_codex_is_pro_env,
     get_codex_model_env,
+    get_http_proxy_env,
+    get_https_proxy_env,
 )
 from utils.parsers import parse_bool_or_none
 from utils.set_env import (
@@ -71,6 +73,8 @@ from utils.set_env import (
     set_codex_email_env,
     set_codex_is_pro_env,
     set_codex_model_env,
+    set_http_proxy_env,
+    set_https_proxy_env,
 )
 
 
@@ -146,6 +150,8 @@ def get_user_config():
             if existing_config.CODEX_IS_PRO is not None
             else parse_bool_or_none(get_codex_is_pro_env())
         ),
+        HTTP_PROXY=existing_config.HTTP_PROXY or get_http_proxy_env(),
+        HTTPS_PROXY=existing_config.HTTPS_PROXY or get_https_proxy_env(),
     )
 
 
@@ -215,6 +221,10 @@ def update_env_with_user_config():
         set_codex_email_env(user_config.CODEX_EMAIL)
     if user_config.CODEX_IS_PRO is not None:
         set_codex_is_pro_env(str(user_config.CODEX_IS_PRO))
+    if user_config.HTTP_PROXY:
+        set_http_proxy_env(user_config.HTTP_PROXY)
+    if user_config.HTTPS_PROXY:
+        set_https_proxy_env(user_config.HTTPS_PROXY)
 
 
 def save_codex_tokens_to_user_config() -> None:

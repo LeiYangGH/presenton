@@ -40,3 +40,7 @@ class UserConfig(BaseModel):
 
     # Web Search
     WEB_GROUNDING: Optional[bool] = None
+
+    # Proxy
+    HTTP_PROXY: Optional[str] = None
+    HTTPS_PROXY: Optional[str] = None

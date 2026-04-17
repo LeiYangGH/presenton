@@ -136,3 +136,11 @@ def set_codex_is_pro_env(value: str):
 
 def set_codex_model_env(value: str):
     os.environ["CODEX_MODEL"] = value
+
+
+def set_http_proxy_env(value: str):
+    os.environ["HTTP_PROXY"] = value
+
+
+def set_https_proxy_env(value: str):
+    os.environ["HTTPS_PROXY"] = value
