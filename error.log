@@ -1,0 +1,152 @@
+FastAPI: INFO:     127.0.0.1:56333 - "POST /api/v1/ppt/presentation/create HTTP/1.1" 200 OK
+
+FastAPI: INFO:     127.0.0.1:56333 - "GET /api/v1/ppt/outlines/stream/78df8438-a270-40ac-bab1-741a8ce74b45 HTTP/1.1" 200 OK
+
+FastAPI: INFO:     127.0.0.1:56324 - "GET /api/v1/ppt/images/search?query=business&limit=1&provider=pexels&strict_api_key=true HTTP/1.1" 500 Internal Server Error
+
+FastAPI: ERROR:    Exception in ASGI application
+Traceback (most recent call last):
+  File "D:\0ly\presenton\electron\servers\fastapi\.venv\Lib\site-packages\uvicorn\protocols\http\httptools_impl.py", line 409, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\0ly\presenton\electron\servers\fastapi\.venv\Lib\site-packages\uvicorn\middleware\proxy_headers.py", line 60, in __call__
+    return await self.app(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\0ly\presenton\electron\servers\fastapi\.venv\Lib\site-packages\fastapi\applications.py", line 1054, in __call__
+    await super().__call__(scope, receive, send)
+  File "D:\0ly\presenton\electron\servers\fastapi\.venv\Lib\site-packages\sentry_sdk\integrations\starlette.py", line 409, in _sentry_patched_asgi_app
+    return await middleware(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\0ly\presenton\electron\servers\fastapi\.venv\Lib\site-packages\sentry_sdk\integrations\asgi.py", line 174, in _run_asgi3
+    return await self._run_app(scope, receive, send, asgi_version=3)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\0ly\presenton\electron\servers\fastapi\.venv\Lib\site-packages\sentry_sdk\integrations\asgi.py", line 276, in _run_app
+    raise exc from None
+  File "D:\0ly\presenton\electron\servers\fastapi\.venv\Lib\site-packages\sentry_sdk\integrations\asgi.py", line 271, in _run_app
+    return await self.app(
+           ^^^^^^^^^^^^^^^
+  File "D:\0ly\presenton\electron\servers\fastapi\.venv\Lib\site-packages\starlette\applications.py", line 113, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "D:\0ly\presenton\electron\servers\fastapi\.venv\Lib\site-packages\sentry_sdk\integrations\starlette.py", line 200, in _create_span_call
+    return await old_call(app, scope, new_receive, new_send, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\0ly\presenton\electron\servers\fastapi\.venv\Lib\site-packages\starlette\middleware\errors.py", line 186, in __call__
+    raise exc
+  File "D:\0ly\presenton\electron\servers\fastapi\.venv\Lib\site-packages\starlette\middleware\errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "D:\0ly\presenton\electron\servers\fastapi\.venv\Lib\site-packages\sentry_sdk\integrations\starlette.py", line 200, in _create_span_call
+    return await old_call(app, scope, new_receive, new_send, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\0ly\presenton\electron\servers\fastapi\.venv\Lib\site-packages\starlette\middleware\base.py", line 182, in __call__
+    with recv_stream, send_stream, collapse_excgroups():
+  File "C:\Users\67568\AppData\Roaming\uv\python\cpython-3.11.14-windows-x86_64-none\Lib\contextlib.py", line 158, in __exit__
+    self.gen.throw(typ, value, traceback)
+  File "D:\0ly\presenton\electron\servers\fastapi\.venv\Lib\site-packages\starlette\_utils.py", line 83, in collapse_excgroups
+    raise exc
+  File "D:\0ly\presenton\electron\servers\fastapi\.venv\Lib\site-packages\starlette\middleware\base.py", line 184, in __call__
+    response = await self.dispatch_func(request, call_next)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\0ly\presenton\electron\servers\fastapi\api\middlewares.py", line 12, in dispatch
+    return await call_next(request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\0ly\presenton\electron\servers\fastapi\.venv\Lib\site-packages\starlette\middleware\base.py", line 159, in call_next
+    raise app_exc
+  File "D:\0ly\presenton\electron\servers\fastapi\.venv\Lib\site-packages\starlette\middleware\base.py", line 144, in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+  File "D:\0ly\presenton\electron\servers\fastapi\.venv\Lib\site-packages\sentry_sdk\integrations\starlette.py", line 200, in _create_span_call
+    return await old_call(app, scope, new_receive, new_send, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\0ly\presenton\electron\servers\fastapi\.venv\Lib\site-packages\starlette\middleware\cors.py", line 85, in __call__
+    await self.app(scope, receive, send)
+  File "D:\0ly\presenton\electron\servers\fastapi\.venv\Lib\site-packages\sentry_sdk\integrations\starlette.py", line 298, in _sentry_exceptionmiddleware_call
+    await old_call(self, scope, receive, send)
+  File "D:\0ly\presenton\electron\servers\fastapi\.venv\Lib\site-packages\sentry_sdk\integrations\starlette.py", line 200, in _create_span_call
+    return await old_call(app, scope, new_receive, new_send, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\0ly\presenton\electron\servers\fastapi\.venv\Lib\site-packages\starlette\middleware\exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "D:\0ly\presenton\electron\servers\fastapi\.venv\Lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "D:\0ly\presenton\electron\servers\fastapi\.venv\Lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "D:\0ly\presenton\electron\servers\fastapi\.venv\Lib\site-packages\starlette\routing.py", line 716, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "D:\0ly\presenton\electron\servers\fastapi\.venv\Lib\site-packages\starlette\routing.py", line 736, in app
+    await route.handle(scope, receive, send)
+  File "D:\0ly\presenton\electron\servers\fastapi\.venv\Lib\site-packages\starlette\routing.py", line 290, in handle
+    await self.app(scope, receive, send)
+  File "D:\0ly\presenton\electron\servers\fastapi\.venv\Lib\site-packages\starlette\routing.py", line 78, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "D:\0ly\presenton\electron\servers\fastapi\.venv\Lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "D:\0ly\presenton\electron\servers\fastapi\.venv\Lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "D:\0ly\presenton\electron\servers\fastapi\.venv\Lib\site-packages\starlette\routing.py", line 75, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "D:\0ly\presenton\electron\servers\fastapi\.venv\Lib\site-packages\sentry_sdk\integrations\fastapi.py", line 143, in _sentry_app
+    return await old_app(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\0ly\presenton\electron\servers\fastapi\.venv\Lib\site-packages\fastapi\routing.py", line 302, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\0ly\presenton\electron\servers\fastapi\.venv\Lib\site-packages\fastapi\routing.py", line 213, in run_endpoint_function
+    return await dependant.call(**values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\0ly\presenton\electron\servers\fastapi\api\v1\ppt\endpoints\images.py", line 61, in search_stock_images
+    await image_generation_service.get_image_from_pexels(
+  File "D:\0ly\presenton\electron\servers\fastapi\services\image_generation_service.py", line 244, in get_image_from_pexels
+    response = await session.get(
+               ^^^^^^^^^^^^^^^^^^
+  File "D:\0ly\presenton\electron\servers\fastapi\.venv\Lib\site-packages\aiohttp\client.py", line 770, in _request
+    resp = await handler(req)
+           ^^^^^^^^^^^^^^^^^^
+  File "D:\0ly\presenton\electron\servers\fastapi\.venv\Lib\site-packages\aiohttp\client.py", line 725, in _connect_and_send_request
+    conn = await self._connector.connect(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\0ly\presenton\electron\servers\fastapi\.venv\Lib\site-packages\aiohttp\connector.py", line 642, in connect
+    proto = await self._create_connection(req, traces, timeout)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\0ly\presenton\electron\servers\fastapi\.venv\Lib\site-packages\aiohttp\connector.py", line 1207, in _create_connection
+    _, proto = await self._create_proxy_connection(req, traces, timeout)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\0ly\presenton\electron\servers\fastapi\.venv\Lib\site-packages\aiohttp\connector.py", line 1697, in _create_proxy_connection
+    return await self._start_tls_connection(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\0ly\presenton\electron\servers\fastapi\.venv\Lib\site-packages\aiohttp\connector.py", line 1465, in _start_tls_connection
+    raise client_error(req.connection_key, exc) from exc
+aiohttp.client_exceptions.ClientConnectorError: Cannot connect to host api.pexels.com:443 ssl:default [None]
+
+Force killing FastAPI...
+FastAPI: Traceback (most recent call last):
+  File "D:\0ly\presenton\electron\servers\fastapi\.venv\Lib\site-packages\dirtyjson\loader.py", line 120, in _next_character
+    nextchar = self.content[self.pos]
+               ~~~~~~~~~~~~^^^^^^^^^^
+IndexError: string index out of range
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+
+FastAPI:   File "D:\0ly\presenton\electron\servers\fastapi\api\v1\ppt\endpoints\outlines.py", line 96, in inner
+    dirtyjson.loads(presentation_outlines_text)
+  File "D:\0ly\presenton\electron\servers\fastapi\.venv\Lib\site-packages\dirtyjson\__init__.py", line 94, in loads
+    return d.decode(search_for_first_object, start_index)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\0ly\presenton\electron\servers\fastapi\.venv\Lib\site-packages\dirtyjson\loader.py", line 372, in decode
+    obj = self.scan()
+          ^^^^^^^^^^^
+  File "D:\0ly\presenton\electron\servers\fastapi\.venv\Lib\site-packages\dirtyjson\loader.py", line 168, in scan
+    nextchar = self._next_character()
+               ^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\0ly\presenton\electron\servers\fastapi\.venv\Lib\site-packages\dirtyjson\loader.py", line 124, in _next_character
+    raise Error(self.expecting, self.content, self.pos)
+dirtyjson.error.Error: Expecting value: line 1 column 1 (char 0)
+
+Process 14708 killed (SIGKILL)
+Force killing NextJS...
+NextJS process exited unexpectedly: code=1, signal=null
+Process 10688 killed (SIGKILL)
+(base) PS D:\0ly\presenton\electron> ^C
+(base) PS D:\0ly\presenton\electron> 7eMhtL6V7fTvLMsFrtlLfKOxOmOhrz3wTwAUBd3KxkEvedHBBc2ImQts^C
+(base) PS D:\0ly\presenton\electron>

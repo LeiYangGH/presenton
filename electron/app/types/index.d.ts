@@ -42,6 +42,8 @@ interface FastApiEnv {
   LITEPARSE_NODE_BINARY?: string,
   /** Set to "1" when using the Electron binary as a Node runtime. */
   ELECTRON_RUN_AS_NODE?: string,
+  HTTP_PROXY?: string,
+  HTTPS_PROXY?: string,
 }
 
 interface NextJsEnv {
@@ -86,6 +88,8 @@ interface UserConfig {
   CODEX_REFRESH_TOKEN?: string,
   CODEX_TOKEN_EXPIRES?: string,
   CODEX_ACCOUNT_ID?: string,
+  HTTP_PROXY?: string,
+  HTTPS_PROXY?: string,
 }
 
 interface IPCStatus {

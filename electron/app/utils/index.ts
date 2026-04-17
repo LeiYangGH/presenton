@@ -47,6 +47,15 @@ export function setupEnv(fastApiPort: number, nextjsPort: number) {
   if (process.env.CAN_CHANGE_KEYS === undefined) {
     process.env.CAN_CHANGE_KEYS = "true";
   }
+
+  // Load proxy settings from userConfig so child processes inherit them
+  const config = getUserConfig();
+  if (config.HTTP_PROXY && !process.env.HTTP_PROXY) {
+    process.env.HTTP_PROXY = config.HTTP_PROXY;
+  }
+  if (config.HTTPS_PROXY && !process.env.HTTPS_PROXY) {
+    process.env.HTTPS_PROXY = config.HTTPS_PROXY;
+  }
 }
 
 

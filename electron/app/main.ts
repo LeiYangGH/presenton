@@ -161,6 +161,8 @@ async function startServers(fastApiPort: number, nextjsPort: number) {
         // depend on a system-wide Node installation.
         LITEPARSE_NODE_BINARY: process.execPath,
         ELECTRON_RUN_AS_NODE: "1",
+        HTTP_PROXY: process.env.HTTP_PROXY,
+        HTTPS_PROXY: process.env.HTTPS_PROXY,
       },
       isDev,
     );
