@@ -1587,6 +1587,7 @@ class LLMClient:
         tools: Optional[List[dict]] = None,
         extra_body: Optional[dict] = None,
         depth: int = 0,
+        use_json_object_format: bool = False,
     ) -> AsyncGenerator[str, None]:
         client: AsyncOpenAI = self._client
 
@@ -1596,13 +1597,14 @@ class LLMClient:
         use_tool_calls_for_structured_output = (
             self.use_tool_calls_for_structured_output()
         )
-        if strict and depth == 0:
-            response_schema = ensure_strict_json_schema(
-                response_schema,
-                path=(),
-                root=response_schema,
-            )
-        response_schema = ensure_array_schemas_have_items(response_schema)
+        if not use_json_object_format:
+            if strict and depth == 0:
+                response_schema = ensure_strict_json_schema(
+                    response_schema,
+                    path=(),
+                    root=response_schema,
+                )
+            response_schema = ensure_array_schemas_have_items(response_schema)
 
         if use_tool_calls_for_structured_output and depth == 0:
             if all_tools is None:
@@ -1626,28 +1628,46 @@ class LLMClient:
         current_arguments = None
 
         has_response_schema_tool_call = False
-        async for event in await client.chat.completions.create(
+
+        # Build response_format value
+        if not use_tool_calls_for_structured_output:
+            if use_json_object_format:
+                _response_format: dict | None = {"type": "json_object"}
+            else:
+                _response_format = {
+                    "type": "json_schema",
+                    "json_schema": {
+                        "name": "ResponseSchema",
+                        "strict": strict,
+                        "schema": response_schema,
+                    },
+                }
+        else:
+            _response_format = None
+
+        # Build kwargs dynamically so we can choose between the legacy
+        # ``max_tokens`` param (understood by DashScope and other
+        # OpenAI-compatible providers) and the newer
+        # ``max_completion_tokens`` (OpenAI-native).  Sending
+        # ``max_completion_tokens`` – even as *null* – to providers
+        # that don't recognise it can cause silent request failures.
+        create_kwargs: Dict[str, Any] = dict(
             model=model,
             messages=[message.model_dump() for message in messages],
-            max_completion_tokens=max_tokens,
             tools=all_tools,
-            response_format=(
-                {
-                    "type": "json_schema",
-                    "json_schema": (
-                        {
-                            "name": "ResponseSchema",
-                            "strict": strict,
-                            "schema": response_schema,
-                        }
-                    ),
-                }
-                if not use_tool_calls_for_structured_output
-                else None
-            ),
-            extra_body=extra_body,
+            response_format=_response_format,
             stream=True,
-        ):
+        )
+        if extra_body is not None:
+            create_kwargs["extra_body"] = extra_body
+        if max_tokens is not None:
+            if use_json_object_format:
+                # Legacy name – compatible with DashScope / Ollama / etc.
+                create_kwargs["max_tokens"] = max_tokens
+            else:
+                create_kwargs["max_completion_tokens"] = max_tokens
+
+        async for event in await client.chat.completions.create(**create_kwargs):
             event: OpenAIChatCompletionChunk = event
             if not event.choices:
                 continue
@@ -1725,6 +1745,7 @@ class LLMClient:
                 response_format=response_schema,
                 extra_body=extra_body,
                 depth=depth + 1,
+                use_json_object_format=use_json_object_format,
             ):
                 yield event
 
@@ -2222,14 +2243,47 @@ class LLMClient:
         depth: int = 0,
     ):
         extra_body = {"enable_thinking": False} if self.disable_thinking() else None
+
+        # Custom (OpenAI-compatible) providers may not support
+        # response_format type "json_schema" with strict mode.
+        # Fall back to "json_object" and inject the schema into the
+        # system prompt so the model still knows the expected structure.
+        schema_instruction = (
+            "\n\nYou MUST respond with a valid JSON object that conforms to "
+            "the following JSON Schema:\n"
+            f"{json.dumps(response_format, ensure_ascii=False)}\n"
+            "Output ONLY the JSON object. Do NOT include any other text, "
+            "markdown fences, or explanation."
+        )
+        enhanced_messages = list(messages)
+        injected = False
+        for i, m in enumerate(enhanced_messages):
+            if isinstance(m, LLMSystemMessage):
+                enhanced_messages[i] = LLMSystemMessage(
+                    content=m.content + schema_instruction
+                )
+                injected = True
+                break
+        if not injected:
+            enhanced_messages.insert(
+                0, LLMSystemMessage(content=schema_instruction.strip())
+            )
+
+        # Ensure a generous output-token budget.  The value is passed
+        # to _stream_openai_structured which – for custom providers –
+        # will emit the SDK-native ``max_tokens`` parameter (NOT the
+        # newer ``max_completion_tokens`` that DashScope rejects).
+        effective_max_tokens = max_tokens or 16384
+
         return self._stream_openai_structured(
             model=model,
-            messages=messages,
+            messages=enhanced_messages,
             response_format=response_format,
             strict=strict,
-            max_tokens=max_tokens,
+            max_tokens=effective_max_tokens,
             extra_body=extra_body,
             depth=depth,
+            use_json_object_format=True,
         )
 
     def stream_structured(
