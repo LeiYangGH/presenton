@@ -15,7 +15,6 @@ import { getSofficePath, isLibreOfficeInstalled } from "./utils/libreoffice-chec
 import { getPuppeteerExecutablePath, isChromeInstalled } from "./utils/puppeteer-check";
 import { getLiteParseRunnerPath } from "./utils/liteparse-check";
 import { getImageMagickBinaryPath, isImageMagickInstalled } from "./utils/imagemagick-check";
-import { startUpdateChecker, stopUpdateChecker } from "./utils/update-checker";
 import { initMainSentry } from "./sentry/main";
 
 
@@ -221,7 +220,6 @@ async function stopServers() {
 async function forceQuitApp(exitCode = 0) {
   if (isStopping) return;
   isStopping = true;
-  stopUpdateChecker();
   try {
     await stopServers();
   } finally {
@@ -315,12 +313,6 @@ app.whenReady().then(async () => {
 
   await startServers(fastApiPort, nextjsPort);
   win?.loadURL(`${localhost}:${nextjsPort}`);
-
-  // Begin polling the version server for available updates
-  if (win) {
-    process.stderr.write("[Presenton] Starting update checker...\n");
-    startUpdateChecker(win);
-  }
 });
 
 app.on("window-all-closed", async () => {
