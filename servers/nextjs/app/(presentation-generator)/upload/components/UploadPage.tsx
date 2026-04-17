@@ -45,7 +45,7 @@ const UploadPage = () => {
   const [files, setFiles] = useState<File[]>([]);
   const [config, setConfig] = useState<PresentationConfig>({
     slides: "5",
-    language: LanguageType.English,
+    language: LanguageType.ChineseSimplified,
     prompt: "",
     tone: ToneType.Default,
     verbosity: VerbosityType.Standard,

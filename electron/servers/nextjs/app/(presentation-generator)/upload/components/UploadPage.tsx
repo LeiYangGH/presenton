@@ -101,7 +101,7 @@ const UploadPage = () => {
   const [files, setFiles] = useState<File[]>([]);
   const [config, setConfig] = useState<PresentationConfig>({
     slides: null,
-    language: LanguageType.Auto,
+    language: LanguageType.ChineseSimplified,
     prompt: "",
     tone: ToneType.Default,
     verbosity: VerbosityType.Standard,
@@ -193,24 +193,6 @@ const UploadPage = () => {
    * @returns boolean indicating if the configuration is valid
    */
   const validateConfiguration = (): boolean => {
-    if (!config.language) {
-      trackEvent(MixpanelEvent.Upload_Validation_Failed, {
-        ...getUploadSnapshotProps(),
-        reason: "language_missing",
-      });
-      toast.error("Please select language");
-      return false;
-    }
-
-    if (files.length > 0 && config.language === LanguageType.Auto) {
-      trackEvent(MixpanelEvent.Upload_Validation_Failed, {
-        ...getUploadSnapshotProps(),
-        reason: "language_auto_with_documents",
-      });
-      toast.error("Please choose a language before processing uploaded documents");
-      return false;
-    }
-
     if (!config.prompt.trim() && files.length === 0) {
       trackEvent(MixpanelEvent.Upload_Validation_Failed, {
         ...getUploadSnapshotProps(),

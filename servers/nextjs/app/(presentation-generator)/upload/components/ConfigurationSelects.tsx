@@ -7,7 +7,7 @@ import {
 } from "@/components/ui/select";
 import { LanguageType, PresentationConfig, ToneType, VerbosityType } from "../type";
 import { useState } from "react";
-import { Check, ChevronsUpDown, GalleryVertical, Languages, SlidersHorizontal } from "lucide-react";
+import { Check, GalleryVertical, SlidersHorizontal } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
     Command,
@@ -130,77 +130,10 @@ const SlideCountSelect: React.FC<{
     );
 };
 
-/**
- * Renders a language selection component with search functionality
- */
-const LanguageSelect: React.FC<{
-    value: string | null;
-    onValueChange: (value: string) => void;
-    open: boolean;
-    onOpenChange: (open: boolean) => void;
-}> = ({ value, onValueChange, open, onOpenChange }) => (
-    <Popover open={open} onOpenChange={onOpenChange}>
-        <PopoverTrigger asChild>
-            <Button
-                variant="outline"
-                role="combobox"
-                name="language"
-                data-testid="language-select"
-                aria-expanded={open}
-                className="w-[180px] flex justify-between items-center gap-2 font-instrument_sans font-semibold overflow-hidden bg-white text-slate-700   h-10 rounded-xl px-3 ring-1 ring-inset ring-slate-200 shadow-sm"
-            >
-                <span className="flex justify-center items-center gap-2.5">
-                    <span className="border border-slate-200  rounded-md p-1">
-                        <Languages className="w-4 h-4" />
-                    </span>
-                    <span className="text-sm font-medium truncate">
-                        {value || "Select language"}
-                    </span>
-                </span>
-                <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-            </Button>
-        </PopoverTrigger>
-        <PopoverContent className="w-[300px] p-0" align="end">
-            <Command>
-                <CommandInput
-                    placeholder="Search language..."
-                    className="font-instrument_sans"
-                />
-                <CommandList>
-                    <CommandEmpty>No language found.</CommandEmpty>
-                    <CommandGroup>
-                        {Object.values(LanguageType).map((language) => (
-                            <CommandItem
-                                key={language}
-                                value={language}
-                                role="option"
-                                onSelect={(currentValue) => {
-                                    onValueChange(currentValue);
-                                    onOpenChange(false);
-                                }}
-                                className="font-instrument_sans"
-                            >
-                                <Check
-                                    className={cn(
-                                        "mr-2 h-4 w-4",
-                                        value === language ? "opacity-100" : "opacity-0"
-                                    )}
-                                />
-                                {language}
-                            </CommandItem>
-                        ))}
-                    </CommandGroup>
-                </CommandList>
-            </Command>
-        </PopoverContent>
-    </Popover>
-);
-
 export function ConfigurationSelects({
     config,
     onConfigChange,
 }: ConfigurationSelectsProps) {
-    const [openLanguage, setOpenLanguage] = useState(false);
     const [openAdvanced, setOpenAdvanced] = useState(false);
 
     const [advancedDraft, setAdvancedDraft] = useState({
@@ -226,6 +159,11 @@ export function ConfigurationSelects({
         setOpenAdvanced(open);
     };
 
+    // Set default language to ChineseSimplified
+    if (config.language !== LanguageType.ChineseSimplified) {
+        onConfigChange("language", LanguageType.ChineseSimplified);
+    }
+
     const handleSaveAdvanced = () => {
         onConfigChange("tone", advancedDraft.tone);
         onConfigChange("verbosity", advancedDraft.verbosity);
@@ -242,12 +180,9 @@ export function ConfigurationSelects({
                 value={config.slides}
                 onValueChange={(value) => onConfigChange("slides", value)}
             />
-            <LanguageSelect
-                value={config.language}
-                onValueChange={(value) => onConfigChange("language", value)}
-                open={openLanguage}
-                onOpenChange={setOpenLanguage}
-            />
+            <div className="flex items-center gap-2 text-sm bg-white text-slate-700 h-10 rounded-xl px-3 ring-1 ring-inset ring-slate-200 shadow-sm font-instrument_sans font-medium">
+                简体中文
+            </div>
             <ToolTip content="Advanced settings">
 
                 <button
