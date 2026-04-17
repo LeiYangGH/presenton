@@ -1,11 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import OpenAIConfig from "./OpenAIConfig";
-import GoogleConfig from "./GoogleConfig";
-import AnthropicConfig from "./AnthropicConfig";
-import OllamaConfig from "./OllamaConfig";
 import CustomConfig from "./CustomConfig";
-import CodexConfig from "./CodexConfig";
 import {
   updateLLMConfig,
   changeProvider as changeProviderUtil,
@@ -52,32 +48,20 @@ export default function LLMProviderSelection({
   useEffect(() => {
     const needsModelSelection =
       (llmConfig.LLM === "openai" && !llmConfig.OPENAI_MODEL) ||
-      (llmConfig.LLM === "google" && !llmConfig.GOOGLE_MODEL) ||
-      (llmConfig.LLM === "ollama" && !llmConfig.OLLAMA_MODEL) ||
-      (llmConfig.LLM === "custom" && !llmConfig.CUSTOM_MODEL) ||
-      (llmConfig.LLM === "anthropic" && !llmConfig.ANTHROPIC_MODEL) ||
-      (llmConfig.LLM === "codex" && !llmConfig.CODEX_MODEL);
+      (llmConfig.LLM === "custom" && !llmConfig.CUSTOM_MODEL);
 
     const needsProviderApiKey =
-      (llmConfig.LLM === "openai" && !llmConfig.OPENAI_API_KEY) ||
-      (llmConfig.LLM === "google" && !llmConfig.GOOGLE_API_KEY) ||
-      (llmConfig.LLM === "anthropic" && !llmConfig.ANTHROPIC_API_KEY);
+      (llmConfig.LLM === "openai" && !llmConfig.OPENAI_API_KEY);
 
     const needsImageProviderApiKey =
       !llmConfig.DISABLE_IMAGE_GENERATION &&
       ((llmConfig.IMAGE_PROVIDER === "dall-e-3" && !llmConfig.OPENAI_API_KEY) ||
         (llmConfig.IMAGE_PROVIDER === "gpt-image-1.5" &&
           !llmConfig.OPENAI_API_KEY) ||
-        (llmConfig.IMAGE_PROVIDER === "gemini_flash" &&
-          !llmConfig.GOOGLE_API_KEY) ||
-        (llmConfig.IMAGE_PROVIDER === "nanobanana_pro" &&
-          !llmConfig.GOOGLE_API_KEY) ||
         (llmConfig.IMAGE_PROVIDER === "pexels" && !llmConfig.PEXELS_API_KEY) ||
         (llmConfig.IMAGE_PROVIDER === "pixabay" && !llmConfig.PIXABAY_API_KEY));
 
     const needsApiKey = needsProviderApiKey || needsImageProviderApiKey;
-
-    const needsOllamaUrl = llmConfig.LLM === "ollama" && !llmConfig.OLLAMA_URL;
 
     const needsComfyUIConfig =
       !llmConfig.DISABLE_IMAGE_GENERATION &&
@@ -89,15 +73,12 @@ export default function LLMProviderSelection({
       isDisabled:
         needsModelSelection ||
         needsApiKey ||
-        needsOllamaUrl ||
         needsComfyUIConfig,
       text: needsModelSelection
         ? "Please Select a Model"
         : needsApiKey
           ? "Please Enter API Key"
-          : needsOllamaUrl
-            ? "Please Enter Ollama URL"
-            : needsComfyUIConfig
+          : needsComfyUIConfig
               ? "Please Configure ComfyUI"
               : "Save Configuration",
       showProgress: false,
@@ -113,10 +94,6 @@ export default function LLMProviderSelection({
     switch (field) {
       case "OPENAI_API_KEY":
         return llmConfig.OPENAI_API_KEY || "";
-      case "GOOGLE_API_KEY":
-        return llmConfig.GOOGLE_API_KEY || "";
-      case "ANTHROPIC_API_KEY":
-        return llmConfig.ANTHROPIC_API_KEY || "";
       case "PEXELS_API_KEY":
         return llmConfig.PEXELS_API_KEY || "";
       case "PIXABAY_API_KEY":
@@ -130,12 +107,6 @@ export default function LLMProviderSelection({
     switch (field) {
       case "OPENAI_API_KEY":
         input_field_changed(value, "openai_api_key");
-        break;
-      case "GOOGLE_API_KEY":
-        input_field_changed(value, "google_api_key");
-        break;
-      case "ANTHROPIC_API_KEY":
-        input_field_changed(value, "anthropic_api_key");
         break;
       case "PEXELS_API_KEY":
         input_field_changed(value, "pexels_api_key");
@@ -153,15 +124,6 @@ export default function LLMProviderSelection({
     setLlmConfig(newConfig);
   };
 
-  useEffect(() => {
-    if (!llmConfig.USE_CUSTOM_URL) {
-      setLlmConfig({ ...llmConfig, OLLAMA_URL: "http://localhost:11434" });
-    } else {
-      if (!llmConfig.OLLAMA_URL) {
-        setLlmConfig({ ...llmConfig, OLLAMA_URL: "http://localhost:11434" });
-      }
-    }
-  }, [llmConfig.USE_CUSTOM_URL]);
 
   useEffect(() => {
     setLlmConfig((prevConfig) => {
@@ -170,15 +132,9 @@ export default function LLMProviderSelection({
       if (!prevConfig.DISABLE_IMAGE_GENERATION && !prevConfig.IMAGE_PROVIDER) {
         if (prevConfig.LLM === "openai") {
           updates.IMAGE_PROVIDER = "gpt-image-1.5";
-        } else if (prevConfig.LLM === "google") {
-          updates.IMAGE_PROVIDER = "gemini_flash";
         } else {
           updates.IMAGE_PROVIDER = "pexels";
         }
-      }
-
-      if (!prevConfig.OLLAMA_URL) {
-        updates.OLLAMA_URL = "http://localhost:11434";
       }
 
       if (Object.keys(updates).length === 0) {
@@ -226,13 +182,9 @@ export default function LLMProviderSelection({
           onValueChange={handleProviderChange}
           className="w-full"
         >
-          <TabsList className="grid w-full grid-cols-6 bg-transparent h-10">
+          <TabsList className="grid w-full grid-cols-2 bg-transparent h-10">
             <TabsTrigger value="openai">OpenAI</TabsTrigger>
-            <TabsTrigger value="google">Google</TabsTrigger>
-            <TabsTrigger value="anthropic">Anthropic</TabsTrigger>
-            <TabsTrigger value="ollama">Ollama</TabsTrigger>
             <TabsTrigger value="custom">Custom</TabsTrigger>
-            <TabsTrigger value="codex">ChatGPT</TabsTrigger>
           </TabsList>
         </Tabs>
       </div>
@@ -255,37 +207,6 @@ export default function LLMProviderSelection({
             />
           </TabsContent>
 
-          {/* Google Content */}
-          <TabsContent value="google" className="mt-6">
-            <GoogleConfig
-              googleApiKey={llmConfig.GOOGLE_API_KEY || ""}
-              googleModel={llmConfig.GOOGLE_MODEL || ""}
-              webGrounding={llmConfig.WEB_GROUNDING || false}
-              onInputChange={input_field_changed}
-            />
-          </TabsContent>
-
-          {/* Anthropic Content */}
-          <TabsContent value="anthropic" className="mt-6">
-            <AnthropicConfig
-              anthropicApiKey={llmConfig.ANTHROPIC_API_KEY || ""}
-              anthropicModel={llmConfig.ANTHROPIC_MODEL || ""}
-              extendedReasoning={llmConfig.EXTENDED_REASONING || false}
-              webGrounding={llmConfig.WEB_GROUNDING || false}
-              onInputChange={input_field_changed}
-            />
-          </TabsContent>
-
-          {/* Ollama Content */}
-          <TabsContent value="ollama" className="mt-6">
-            <OllamaConfig
-              ollamaModel={llmConfig.OLLAMA_MODEL || ""}
-              ollamaUrl={llmConfig.OLLAMA_URL || ""}
-              useCustomUrl={llmConfig.USE_CUSTOM_URL || false}
-              onInputChange={input_field_changed}
-            />
-          </TabsContent>
-
           {/* Custom Content */}
           <TabsContent value="custom" className="mt-6">
             <CustomConfig
@@ -298,13 +219,6 @@ export default function LLMProviderSelection({
             />
           </TabsContent>
 
-          {/* ChatGPT / Codex Content */}
-          <TabsContent value="codex" className="mt-6">
-            <CodexConfig
-              codexModel={llmConfig.CODEX_MODEL || ""}
-              onInputChange={input_field_changed}
-            />
-          </TabsContent>
         </Tabs>
 
         {/* Image Generation Toggle */}

@@ -13,10 +13,6 @@ def set_llm_provider_env(value):
     os.environ["LLM"] = value
 
 
-def set_ollama_url_env(value):
-    os.environ["OLLAMA_URL"] = value
-
-
 def set_custom_llm_url_env(value):
     os.environ["CUSTOM_LLM_URL"] = value
 
@@ -29,28 +25,8 @@ def set_openai_model_env(value):
     os.environ["OPENAI_MODEL"] = value
 
 
-def set_google_api_key_env(value):
-    os.environ["GOOGLE_API_KEY"] = value
-
-
-def set_google_model_env(value):
-    os.environ["GOOGLE_MODEL"] = value
-
-
-def set_anthropic_api_key_env(value):
-    os.environ["ANTHROPIC_API_KEY"] = value
-
-
-def set_anthropic_model_env(value):
-    os.environ["ANTHROPIC_MODEL"] = value
-
-
 def set_custom_llm_api_key_env(value):
     os.environ["CUSTOM_LLM_API_KEY"] = value
-
-
-def set_ollama_model_env(value):
-    os.environ["OLLAMA_MODEL"] = value
 
 
 def set_custom_model_env(value):
@@ -103,27 +79,6 @@ def set_dall_e_3_quality_env(value):
 
 def set_gpt_image_1_5_quality_env(value):
     os.environ["GPT_IMAGE_1_5_QUALITY"] = value
-
-
-# Codex OAuth
-def set_codex_access_token_env(value: str):
-    os.environ["CODEX_ACCESS_TOKEN"] = value
-
-
-def set_codex_refresh_token_env(value: str):
-    os.environ["CODEX_REFRESH_TOKEN"] = value
-
-
-def set_codex_token_expires_env(value: str):
-    os.environ["CODEX_TOKEN_EXPIRES"] = value
-
-
-def set_codex_account_id_env(value: str):
-    os.environ["CODEX_ACCOUNT_ID"] = value
-
-
-def set_codex_model_env(value: str):
-    os.environ["CODEX_MODEL"] = value
 
 
 # Open WebUI Image Provider

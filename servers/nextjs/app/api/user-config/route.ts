@@ -44,14 +44,6 @@ export async function POST(request: Request) {
     LLM: userConfig.LLM || existingConfig.LLM,
     OPENAI_API_KEY: userConfig.OPENAI_API_KEY || existingConfig.OPENAI_API_KEY,
     OPENAI_MODEL: userConfig.OPENAI_MODEL || existingConfig.OPENAI_MODEL,
-    GOOGLE_API_KEY: userConfig.GOOGLE_API_KEY || existingConfig.GOOGLE_API_KEY,
-    GOOGLE_MODEL: userConfig.GOOGLE_MODEL || existingConfig.GOOGLE_MODEL,
-    ANTHROPIC_API_KEY:
-      userConfig.ANTHROPIC_API_KEY || existingConfig.ANTHROPIC_API_KEY,
-    ANTHROPIC_MODEL:
-      userConfig.ANTHROPIC_MODEL || existingConfig.ANTHROPIC_MODEL,
-    OLLAMA_URL: userConfig.OLLAMA_URL || existingConfig.OLLAMA_URL,
-    OLLAMA_MODEL: userConfig.OLLAMA_MODEL || existingConfig.OLLAMA_MODEL,
     CUSTOM_LLM_URL: userConfig.CUSTOM_LLM_URL || existingConfig.CUSTOM_LLM_URL,
     CUSTOM_LLM_API_KEY:
       userConfig.CUSTOM_LLM_API_KEY || existingConfig.CUSTOM_LLM_API_KEY,
@@ -87,19 +79,10 @@ export async function POST(request: Request) {
       userConfig.WEB_GROUNDING === undefined
         ? existingConfig.WEB_GROUNDING
         : userConfig.WEB_GROUNDING,
-    USE_CUSTOM_URL:
-      userConfig.USE_CUSTOM_URL === undefined
-        ? existingConfig.USE_CUSTOM_URL
-        : userConfig.USE_CUSTOM_URL,
     OPEN_WEBUI_IMAGE_URL:
       userConfig.OPEN_WEBUI_IMAGE_URL || existingConfig.OPEN_WEBUI_IMAGE_URL,
     OPEN_WEBUI_IMAGE_API_KEY:
       userConfig.OPEN_WEBUI_IMAGE_API_KEY || existingConfig.OPEN_WEBUI_IMAGE_API_KEY,
-    CODEX_MODEL: userConfig.CODEX_MODEL || existingConfig.CODEX_MODEL,
-    CODEX_ACCESS_TOKEN: existingConfig.CODEX_ACCESS_TOKEN,
-    CODEX_REFRESH_TOKEN: existingConfig.CODEX_REFRESH_TOKEN,
-    CODEX_TOKEN_EXPIRES: existingConfig.CODEX_TOKEN_EXPIRES,
-    CODEX_ACCOUNT_ID: existingConfig.CODEX_ACCOUNT_ID,
   };
   fs.writeFileSync(userConfigPath, JSON.stringify(mergedConfig));
   return NextResponse.json(mergedConfig);

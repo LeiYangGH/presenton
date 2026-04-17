@@ -18,14 +18,6 @@ def is_pixabay_selected() -> bool:
     return ImageProvider.PIXABAY == get_selected_image_provider()
 
 
-def is_gemini_flash_selected() -> bool:
-    return ImageProvider.GEMINI_FLASH == get_selected_image_provider()
-
-
-def is_nanobanana_pro_selected() -> bool:
-    return ImageProvider.NANOBANANA_PRO == get_selected_image_provider()
-
-
 def is_dalle3_selected() -> bool:
     return ImageProvider.DALLE3 == get_selected_image_provider()
 
@@ -50,5 +42,8 @@ def get_selected_image_provider() -> ImageProvider | None:
     """
     image_provider_env = get_image_provider_env()
     if image_provider_env:
-        return ImageProvider(image_provider_env)
+        try:
+            return ImageProvider(image_provider_env)
+        except ValueError:
+            return None
     return None

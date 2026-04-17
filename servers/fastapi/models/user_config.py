@@ -9,18 +9,6 @@ class UserConfig(BaseModel):
     OPENAI_API_KEY: Optional[str] = None
     OPENAI_MODEL: Optional[str] = None
 
-    # Google
-    GOOGLE_API_KEY: Optional[str] = None
-    GOOGLE_MODEL: Optional[str] = None
-
-    # Anthropic
-    ANTHROPIC_API_KEY: Optional[str] = None
-    ANTHROPIC_MODEL: Optional[str] = None
-
-    # Ollama
-    OLLAMA_URL: Optional[str] = None
-    OLLAMA_MODEL: Optional[str] = None
-
     # Custom LLM
     CUSTOM_LLM_URL: Optional[str] = None
     CUSTOM_LLM_API_KEY: Optional[str] = None
@@ -52,10 +40,3 @@ class UserConfig(BaseModel):
 
     # Web Search
     WEB_GROUNDING: Optional[bool] = None
-
-    # Codex OAuth (ChatGPT)
-    CODEX_MODEL: Optional[str] = None
-    CODEX_ACCESS_TOKEN: Optional[str] = None
-    CODEX_REFRESH_TOKEN: Optional[str] = None
-    CODEX_TOKEN_EXPIRES: Optional[str] = None
-    CODEX_ACCOUNT_ID: Optional[str] = None

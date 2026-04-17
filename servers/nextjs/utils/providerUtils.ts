@@ -1,22 +1,11 @@
 import { LLMConfig } from "@/types/llm_config";
 
-export interface OllamaModel {
-  label: string;
-  value: string;
-  size: string;
-}
-
 export interface DownloadingModel {
   name: string;
   size: number | null;
   downloaded: number | null;
   status: string;
   done: boolean;
-}
-
-export interface OllamaModelsResult {
-  models: OllamaModel[];
-  updatedConfig?: LLMConfig;
 }
 
 /**
@@ -30,12 +19,6 @@ export const updateLLMConfig = (
   const fieldMappings: Record<string, keyof LLMConfig> = {
     openai_api_key: "OPENAI_API_KEY",
     openai_model: "OPENAI_MODEL",
-    google_api_key: "GOOGLE_API_KEY",
-    google_model: "GOOGLE_MODEL",
-    anthropic_api_key: "ANTHROPIC_API_KEY",
-    anthropic_model: "ANTHROPIC_MODEL",
-    ollama_url: "OLLAMA_URL",
-    ollama_model: "OLLAMA_MODEL",
     custom_llm_url: "CUSTOM_LLM_URL",
     custom_llm_api_key: "CUSTOM_LLM_API_KEY",
     custom_model: "CUSTOM_MODEL",
@@ -43,7 +26,6 @@ export const updateLLMConfig = (
     pixabay_api_key: "PIXABAY_API_KEY",
     image_provider: "IMAGE_PROVIDER",
     disable_image_generation: "DISABLE_IMAGE_GENERATION",
-    use_custom_url: "USE_CUSTOM_URL",
     tool_calls: "TOOL_CALLS",
     disable_thinking: "DISABLE_THINKING",
     extended_reasoning: "EXTENDED_REASONING",
@@ -54,7 +36,6 @@ export const updateLLMConfig = (
     gpt_image_1_5_quality: "GPT_IMAGE_1_5_QUALITY",
     open_webui_image_url: "OPEN_WEBUI_IMAGE_URL",
     open_webui_image_api_key: "OPEN_WEBUI_IMAGE_API_KEY",
-    codex_model: "CODEX_MODEL",
   };
 
   const configKey = fieldMappings[field];
@@ -77,28 +58,12 @@ export const changeProvider = (
   // Auto Select appropriate image provider based on the text models
   if (provider === "openai") {
     newConfig.IMAGE_PROVIDER = "gpt-image-1.5";
-  } else if (provider === "google") {
-    newConfig.IMAGE_PROVIDER = "gemini_flash";
   } else {
-    newConfig.IMAGE_PROVIDER = "pexels"; // default for ollama, custom, codex
+    newConfig.IMAGE_PROVIDER = "pexels"; // default for custom
   }
 
   return newConfig;
 };
-
-
-export const checkIfSelectedOllamaModelIsPulled = async (ollamaModel: string) => {
-  try {
-    const response = await fetch('/api/v1/ppt/ollama/models/available');
-    const models = await response.json();
-    const pulledModels = models.map((model: any) => model.name);
-    return pulledModels.includes(ollamaModel);
-  } catch (error) {
-    console.error('Error checking if selected Ollama model is pulled:', error);
-    return false;
-  }
-}
-
 
 /**
  * Resets downloading model state
@@ -122,10 +87,10 @@ function isAbortError(e: unknown): boolean {
 }
 
 /**
- * Pulls Ollama model with progress tracking.
+ * Pulls model with progress tracking.
  * Pass an AbortSignal to stop polling (e.g. user cancels download).
  */
-export const pullOllamaModel = async (
+export const pullModel = async (
   model: string,
   onProgress?: (model: DownloadingModel) => void,
   signal?: AbortSignal
@@ -162,9 +127,7 @@ export const pullOllamaModel = async (
         return;
       }
       try {
-        const response = await fetch(
-          `/api/v1/ppt/ollama/model/pull?model=${model}`
-        );
+        const response = await fetch(`/api/v1/ppt/model/pull?model=${model}`);
         if (settled) return;
         if (response.status === 200) {
           const data = await response.json();
@@ -189,7 +152,7 @@ export const pullOllamaModel = async (
           cleanup();
           onProgress?.(resetDownloadingModel());
           if (response.status === 403) {
-            reject(new Error("Request to Ollama Not Authorized"));
+            reject(new Error("Request to model Not Authorized"));
           } else {
             reject(new Error("Error occurred while pulling model"));
           }

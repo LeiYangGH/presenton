@@ -63,24 +63,6 @@ export const IMAGE_PROVIDERS: Record<string, ImageProviderOption> = {
     apiKeyField: "OPENAI_API_KEY",
     apiKeyFieldLabel: "OpenAI API Key",
   },
-  gemini_flash: {
-    value: "gemini_flash",
-    label: "Gemini Flash",
-    description: "Google's fast image generation model",
-    icon: "/icons/google.png",
-    requiresApiKey: true,
-    apiKeyField: "GOOGLE_API_KEY",
-    apiKeyFieldLabel: "Google API Key",
-  },
-  nanobanana_pro: {
-    value: "nanobanana_pro",
-    label: "NanoBanana Pro",
-    description: "Google's advanced image generation model",
-    icon: "/icons/google.png",
-    requiresApiKey: true,
-    apiKeyField: "GOOGLE_API_KEY",
-    apiKeyFieldLabel: "Google API Key",
-  },
   comfyui: {
     value: "comfyui",
     label: "ComfyUI",
@@ -109,37 +91,11 @@ export const LLM_PROVIDERS: Record<string, LLMProviderOption> = {
     url: "https://api.openai.com/v1",
     icon: "/icons/openai.png",
   },
-  google: {
-    value: "google",
-    label: "Google",
-    description: "Google's primary text generation model",
-    url: "https://api.google.com/v1",
-    icon: "/icons/google.png",
-  },
-  anthropic: {
-    value: "anthropic",
-    label: "Anthropic",
-    description: "Anthropic's Claude models",
-    url: "https://api.anthropic.com/v1",
-    icon: "/icons/anthropic.png",
-  },
-  ollama: {
-    value: "ollama",
-    label: "Ollama",
-    description: "Ollama's primary text generation model",
-    icon: "/icons/ollama.png",
-  },
   custom: {
     value: "custom",
     label: "Custom",
-    description: "Custom LLM",
+    description: "Custom LLM (OpenAI Compatible, Local Llama, etc.)",
     icon: "/icons/custom.png",
-  },
-  codex: {
-    value: "codex",
-    label: "ChatGPT",
-    description: "ChatGPT Plus/Pro via OAuth",
-    icon: "/icons/chatgpt.png",
   },
 };
 

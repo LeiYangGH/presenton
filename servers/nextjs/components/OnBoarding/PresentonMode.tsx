@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
 import { Button } from '../ui/button';
-import { Check, CheckCircle, ChevronLeft, ChevronRight, ChevronUp, Download, Eye, EyeOff, Loader2 } from 'lucide-react';
+import { Check, ChevronLeft, ChevronRight, ChevronUp, Eye, EyeOff, Loader2 } from 'lucide-react';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '../ui/command';
 import { DALLE_3_QUALITY_OPTIONS, GPT_IMAGE_1_5_QUALITY_OPTIONS, IMAGE_PROVIDERS, LLM_PROVIDERS } from '@/utils/providerConstants';
 import { cn } from '@/lib/utils';
@@ -15,7 +15,6 @@ import { Select, SelectItem, SelectContent, SelectValue, SelectTrigger } from '.
 import { MixpanelEvent, trackEvent } from '@/utils/mixpanel';
 import { usePathname, useRouter } from 'next/navigation';
 import { handleSaveLLMConfig } from '@/utils/storeHelpers';
-import { checkIfSelectedOllamaModelIsPulled, pullOllamaModel } from '@/utils/providerUtils';
 
 const PresentonMode = ({ currentStep, setStep }: { currentStep: number, setStep: (step: number) => void }) => {
     const pathname = usePathname();
@@ -29,18 +28,10 @@ const PresentonMode = ({ currentStep, setStep }: { currentStep: number, setStep:
     const [openModelSelect, setOpenModelSelect] = useState(false);
     const [modelsLoading, setModelsLoading] = useState(false);
     const [modelsChecked, setModelsChecked] = useState(false);
-    const [showDownloadModal, setShowDownloadModal] = useState(false);
     const [savingConfig, setSavingConfig] = useState(false);
     const [llmConfig, setLlmConfig] = useState<LLMConfig>(
         userConfigState.llm_config
     );
-    const [downloadingModel, setDownloadingModel] = useState<{
-        name: string;
-        size: number | null;
-        downloaded: number | null;
-        status: string;
-        done: boolean;
-    } | null>(null);
 
     const handleProviderChange = (provider: string) => {
 
@@ -63,12 +54,6 @@ const PresentonMode = ({ currentStep, setStep }: { currentStep: number, setStep:
         switch (llmConfig.LLM) {
             case 'openai':
                 return 'OPENAI_MODEL';
-            case 'google':
-                return 'GOOGLE_MODEL';
-            case 'anthropic':
-                return 'ANTHROPIC_MODEL';
-            case 'ollama':
-                return 'OLLAMA_MODEL';
             case 'custom':
                 return 'CUSTOM_MODEL';
             default:
@@ -79,10 +64,6 @@ const PresentonMode = ({ currentStep, setStep }: { currentStep: number, setStep:
         switch (llmConfig.LLM) {
             case 'openai':
                 return 'OPENAI_API_KEY';
-            case 'google':
-                return 'GOOGLE_API_KEY';
-            case 'anthropic':
-                return 'ANTHROPIC_API_KEY';
             case 'custom':
                 return 'CUSTOM_LLM_API_KEY';
             default:
@@ -99,62 +80,30 @@ const PresentonMode = ({ currentStep, setStep }: { currentStep: number, setStep:
 
     const currentApiKey = currentApiKeyField ? ((llmConfig as Record<string, unknown>)[currentApiKeyField] as string || '') : '';
     const currentModel = currentModelField ? ((llmConfig as Record<string, unknown>)[currentModelField] as string || '') : '';
-    const currentOllamaUrl = llmConfig.OLLAMA_URL || '';
-    const useCustomOllamaUrl = !!llmConfig.USE_CUSTOM_URL;
 
     const fetchAvailableModels = async () => {
         if (llmConfig.LLM === 'openai' && !currentApiKey) return;
-        if (llmConfig.LLM === 'google' && !currentApiKey) return;
-        if (llmConfig.LLM === 'anthropic' && !currentApiKey) return;
         if (llmConfig.LLM === 'custom' && !llmConfig.CUSTOM_LLM_URL) return;
 
         setModelsLoading(true);
         try {
             let response: Response;
-            if (llmConfig.LLM === 'google') {
-                response = await fetch('/api/v1/ppt/google/models/available', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        api_key: currentApiKey
-                    }),
-                });
-            } else if (llmConfig.LLM === 'anthropic') {
-                response = await fetch('/api/v1/ppt/anthropic/models/available', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        api_key: currentApiKey
-                    }),
-                });
-            } else if (llmConfig.LLM === 'ollama') {
-                response = await fetch('/api/v1/ppt/ollama/models/supported');
-            } else {
-                response = await fetch('/api/v1/ppt/openai/models/available', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        url: llmConfig.LLM === 'custom' ? llmConfig.CUSTOM_LLM_URL : LLM_PROVIDERS[llmConfig.LLM!]?.url || '',
-                        api_key: currentApiKey
-                    }),
-                });
-            }
+            response = await fetch('/api/v1/ppt/openai/models/available', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    url: llmConfig.LLM === 'custom' ? llmConfig.CUSTOM_LLM_URL : LLM_PROVIDERS[llmConfig.LLM!]?.url || '',
+                    api_key: currentApiKey
+                }),
+            });
 
             if (response.ok) {
                 const data = await response.json();
-                const normalizedModels: string[] = llmConfig.LLM === 'ollama'
-                    ? Array.isArray(data)
-                        ? data.map((model: { value?: string; label?: string }) => model.value || model.label || '').filter(Boolean)
-                        : []
-                    : Array.isArray(data)
-                        ? data
-                        : [];
+                const normalizedModels: string[] = Array.isArray(data)
+                    ? data
+                    : [];
 
                 setAvailableModels(normalizedModels);
                 setModelsChecked(true);
@@ -171,11 +120,7 @@ const PresentonMode = ({ currentStep, setStep }: { currentStep: number, setStep:
                     const preferredDefault =
                         llmConfig.LLM === 'openai'
                             ? 'gpt-4.1'
-                            : llmConfig.LLM === 'google'
-                                ? 'models/gemini-2.5-flash'
-                                : llmConfig.LLM === 'anthropic'
-                                    ? 'claude-sonnet-4-20250514'
-                                    : normalizedModels[0];
+                            : normalizedModels[0];
 
                     const nextModel = normalizedModels.includes(preferredDefault) ? preferredDefault : normalizedModels[0];
                     setLlmConfig(prev => ({
@@ -259,15 +204,6 @@ const PresentonMode = ({ currentStep, setStep }: { currentStep: number, setStep:
 
         return null;
     };
-    const handleModelDownload = async () => {
-        try {
-            await pullOllamaModel(llmConfig.OLLAMA_MODEL!, setDownloadingModel);
-        }
-        finally {
-            setDownloadingModel(null);
-            setShowDownloadModal(false);
-        }
-    };
 
 
     const handleSaveConfig = async () => {
@@ -279,17 +215,6 @@ const PresentonMode = ({ currentStep, setStep }: { currentStep: number, setStep:
             // API CALL: save config
             await handleSaveLLMConfig(llmConfig);
 
-            if (llmConfig.LLM === "ollama" && llmConfig.OLLAMA_MODEL) {
-                // API: check model pulled
-                trackEvent(MixpanelEvent.Home_CheckOllamaModelPulled_API_Call);
-                const isPulled = await checkIfSelectedOllamaModelIsPulled(llmConfig.OLLAMA_MODEL);
-                if (!isPulled) {
-                    setShowDownloadModal(true);
-                    // API: download model
-                    trackEvent(MixpanelEvent.Home_DownloadOllamaModel_API_Call);
-                    await handleModelDownload();
-                }
-            }
             toast.info("Configuration saved successfully");
             // Track navigation from -> to
             trackEvent(MixpanelEvent.Navigation, { from: pathname, to: "/final onboarding step" });
@@ -304,17 +229,8 @@ const PresentonMode = ({ currentStep, setStep }: { currentStep: number, setStep:
         }
     };
 
-    const downloadProgress = useMemo(() => {
-        if (downloadingModel && downloadingModel.downloaded !== null && downloadingModel.size !== null) {
-            return Math.round((downloadingModel.downloaded / downloadingModel.size) * 100);
-        }
-        return 0;
-    }, [downloadingModel?.downloaded, downloadingModel?.size]);
-
     useEffect(() => {
-        if (llmConfig.LLM === 'ollama' && !modelsChecked && !modelsLoading) {
-            fetchAvailableModels();
-        }
+        // Auto-fetch models if needed
     }, [llmConfig.LLM, modelsChecked, modelsLoading]);
 
     return (
@@ -421,53 +337,7 @@ const PresentonMode = ({ currentStep, setStep }: { currentStep: number, setStep:
                     </div>
                     <div className="relative flex flex-col justify-end  items-end  w-full ">
                         <div className="flex flex-col justify-start w-full ">
-                            {llmConfig.LLM === 'ollama' ? (
-                                <>
-                                    {!useCustomOllamaUrl ? (
-                                        <button
-                                            type="button"
-                                            onClick={() => setLlmConfig(prev => ({
-                                                ...prev,
-                                                USE_CUSTOM_URL: true,
-                                                OLLAMA_URL: prev.OLLAMA_URL || 'http://localhost:11434'
-                                            }))}
-                                            className="mt-8 py-2.5 bg-[#EDEEEF] px-3.5 w-fit rounded-[48px] text-xs font-semibold text-[#101323] transition-all duration-200 border border-[#EDEEEF] hover:bg-[#E8F0FF]/90 focus:ring-2 focus:ring-blue-500/20"
-                                        >
-                                            Use Ollama URL
-                                        </button>
-                                    ) : (
-                                        <>
-                                            <label className="block text-sm font-medium capitalize text-gray-700 mb-2">
-                                                Ollama URL
-                                            </label>
-                                            <div className="relative">
-                                                <input
-                                                    type="text"
-                                                    value={currentOllamaUrl}
-                                                    onChange={(e) => setLlmConfig(prev => ({
-                                                        ...prev,
-                                                        OLLAMA_URL: e.target.value
-                                                    }))}
-                                                    className="w-full px-2 py-3 outline-none border  border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-colors"
-                                                    placeholder="http://localhost:11434"
-                                                />
-                                            </div>
-                                            <button
-                                                type="button"
-                                                onClick={() => setLlmConfig(prev => ({
-                                                    ...prev,
-                                                    USE_CUSTOM_URL: false,
-                                                    OLLAMA_URL: 'http://localhost:11434'
-                                                }))}
-                                                className="mt-2 text-xs font-medium text-[#4B5563] underline underline-offset-2"
-                                            >
-                                                Use default Ollama URL
-                                            </button>
-                                        </>
-                                    )}
-                                </>
-                            ) : (
-                                <>
+                            <>
                                     <label className="block text-sm font-medium capitalize text-gray-700 mb-2">
                                         {llmConfig.LLM === 'custom' ? 'Custom LLM API Key' : `${llmConfig.LLM} API Key`}
                                     </label>
@@ -509,15 +379,13 @@ const PresentonMode = ({ currentStep, setStep }: { currentStep: number, setStep:
                         </div>
 
 
-                        {llmConfig.LLM !== 'ollama' && (!modelsChecked || (modelsChecked && availableModels.length === 0)) && (
+                        {(!modelsChecked || (modelsChecked && availableModels.length === 0)) && (
 
                             <button
                                 onClick={fetchAvailableModels}
                                 disabled={
                                     modelsLoading ||
                                     (llmConfig.LLM === 'openai' && !currentApiKey) ||
-                                    (llmConfig.LLM === 'google' && !currentApiKey) ||
-                                    (llmConfig.LLM === 'anthropic' && !currentApiKey) ||
                                     (llmConfig.LLM === 'custom' && !llmConfig.CUSTOM_LLM_URL)
                                 }
                                 className={`mt-4 py-2.5 bg-[#EDEEEF] px-3.5 w-fit  rounded-[48px] text-xs font-semibold text-[#101323] transition-all duration-200 border ${modelsLoading
@@ -546,7 +414,7 @@ const PresentonMode = ({ currentStep, setStep }: { currentStep: number, setStep:
                         <div className="w-full">
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    {llmConfig.LLM === 'ollama' ? 'Choose a supported model' : `Select ${LLM_PROVIDERS[llmConfig.LLM!]?.label} Model`}
+                                    Select {LLM_PROVIDERS[llmConfig.LLM!]?.label} Model
                                 </label>
                                 <div className="w-full">
                                     <Popover

@@ -5,18 +5,6 @@ export interface LLMConfig {
   OPENAI_API_KEY?: string;
   OPENAI_MODEL?: string;
 
-  // Google
-  GOOGLE_API_KEY?: string;
-  GOOGLE_MODEL?: string;
-
-  // Anthropic
-  ANTHROPIC_API_KEY?: string;
-  ANTHROPIC_MODEL?: string;
-
-  // Ollama
-  OLLAMA_URL?: string;
-  OLLAMA_MODEL?: string;
-
   // Custom LLM
   CUSTOM_LLM_URL?: string;
   CUSTOM_LLM_API_KEY?: string;
@@ -46,14 +34,4 @@ export interface LLMConfig {
   DISABLE_THINKING?: boolean;
   EXTENDED_REASONING?: boolean;
   WEB_GROUNDING?: boolean;
-
-  // Codex OAuth (ChatGPT)
-  CODEX_MODEL?: string;
-  CODEX_ACCESS_TOKEN?: string;
-  CODEX_REFRESH_TOKEN?: string;
-  CODEX_TOKEN_EXPIRES?: string;
-  CODEX_ACCOUNT_ID?: string;
-
-  // Only used in UI settings
-  USE_CUSTOM_URL?: boolean;
 }

@@ -38,12 +38,6 @@ const TextProvider = ({
         switch (selectedProvider) {
             case 'openai':
                 return 'OPENAI_MODEL';
-            case 'google':
-                return 'GOOGLE_MODEL';
-            case 'anthropic':
-                return 'ANTHROPIC_MODEL';
-            case 'ollama':
-                return 'OLLAMA_MODEL';
             case 'custom':
                 return 'CUSTOM_MODEL';
             default:
@@ -55,10 +49,6 @@ const TextProvider = ({
         switch (selectedProvider) {
             case 'openai':
                 return 'OPENAI_API_KEY';
-            case 'google':
-                return 'GOOGLE_API_KEY';
-            case 'anthropic':
-                return 'ANTHROPIC_API_KEY';
             case 'custom':
                 return 'CUSTOM_LLM_API_KEY';
             default:
@@ -69,8 +59,6 @@ const TextProvider = ({
     const currentModel = currentModelField ? ((llmConfig as Record<string, unknown>)[currentModelField] as string || '') : '';
     const currentApiKey = currentApiKeyField ? ((llmConfig as Record<string, unknown>)[currentApiKeyField] as string || '') : '';
     const currentCustomUrl = llmConfig.CUSTOM_LLM_URL || '';
-    const currentOllamaUrl = llmConfig.OLLAMA_URL || '';
-    const useCustomOllamaUrl = !!llmConfig.USE_CUSTOM_URL;
     const modelLabel = selectedProviderMeta?.label || selectedProvider;
 
     useEffect(() => {
@@ -89,21 +77,12 @@ const TextProvider = ({
 
 
     const onApiKeyChange = (llm: keyof typeof LLM_PROVIDERS, value: string) => {
-        if (llm === 'ollama') {
-            onInputChange(value, 'OLLAMA_URL');
-            return;
-        }
-
         const keyField =
             llm === 'openai'
                 ? 'OPENAI_API_KEY'
-                : llm === 'google'
-                    ? 'GOOGLE_API_KEY'
-                    : llm === 'anthropic'
-                        ? 'ANTHROPIC_API_KEY'
-                        : llm === 'custom'
-                            ? 'CUSTOM_LLM_API_KEY'
-                            : '';
+                : llm === 'custom'
+                    ? 'CUSTOM_LLM_API_KEY'
+                    : '';
         if (keyField) {
             onInputChange(value, keyField);
         }
@@ -111,57 +90,27 @@ const TextProvider = ({
 
     const fetchAvailableModels = async () => {
         if (selectedProvider === 'openai' && !currentApiKey) return;
-        if (selectedProvider === 'google' && !currentApiKey) return;
-        if (selectedProvider === 'anthropic' && !currentApiKey) return;
         if (selectedProvider === 'custom' && !currentCustomUrl) return;
 
         setModelsLoading(true);
         try {
             let response: Response;
-            if (selectedProvider === 'google') {
-                response = await fetch('/api/v1/ppt/google/models/available', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        api_key: currentApiKey
-                    }),
-                });
-            } else if (selectedProvider === 'anthropic') {
-                response = await fetch('/api/v1/ppt/anthropic/models/available', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        api_key: currentApiKey
-                    }),
-                });
-            } else if (selectedProvider === 'ollama') {
-                response = await fetch('/api/v1/ppt/ollama/models/supported');
-            } else {
-                response = await fetch('/api/v1/ppt/openai/models/available', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        url: selectedProvider === 'custom' ? currentCustomUrl : selectedProviderMeta?.url || '',
-                        api_key: currentApiKey
-                    }),
-                });
-            }
+            response = await fetch('/api/v1/ppt/openai/models/available', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    url: selectedProvider === 'custom' ? currentCustomUrl : selectedProviderMeta?.url || '',
+                    api_key: currentApiKey
+                }),
+            });
 
             if (response.ok) {
                 const data = await response.json();
-                const normalizedModels: string[] = selectedProvider === 'ollama'
-                    ? Array.isArray(data)
-                        ? data.map((model: { value?: string; label?: string }) => model.value || model.label || '').filter(Boolean)
-                        : []
-                    : Array.isArray(data)
-                        ? data
-                        : [];
+                const normalizedModels: string[] = Array.isArray(data)
+                    ? data
+                    : [];
 
                 setAvailableModels(normalizedModels);
                 setModelsChecked(true);
@@ -175,11 +124,7 @@ const TextProvider = ({
                     const preferredDefault =
                         selectedProvider === 'openai'
                             ? 'gpt-4.1'
-                            : selectedProvider === 'google'
-                                ? 'models/gemini-2.5-flash'
-                                : selectedProvider === 'anthropic'
-                                    ? 'claude-sonnet-4-20250514'
-                                    : normalizedModels[0];
+                            : normalizedModels[0];
 
                     const nextModel = normalizedModels.includes(preferredDefault) ? preferredDefault : normalizedModels[0];
                     onInputChange(nextModel, currentModelField);
@@ -204,9 +149,7 @@ const TextProvider = ({
     };
 
     useEffect(() => {
-        if (selectedProvider === 'ollama' && !modelsChecked && !modelsLoading) {
-            fetchAvailableModels();
-        }
+        // Auto-fetch models for openai and custom providers if needed
     }, [selectedProvider, modelsChecked, modelsLoading]);
     return (
         <div className="space-y-6 bg-[#F9F8F8] p-7 rounded-[12px] ">
@@ -228,34 +171,7 @@ const TextProvider = ({
                     </p>
                 </div>
                 <div>
-                    {selectedProvider === 'codex' && false && <div className='border border-[#EDEEEF] mb-4 rounded-[8px] p-5 flex justify-between items-center'>
-                        <div className='flex items-center gap-2.5'>
-                            <User className='w-4 h-4 text-gray-500' />
-                            <div>
-                                <h4 className='text-[#19001F] text-sm font-medium'>Acc: 123-455-acghk</h4>
-                                <p className='text-xs text-[#B3B3B3]'>Signed in to ChatGPT</p>
-                            </div>
-
-                        </div>
-                        <div className='flex items-center gap-2.5'>
-                            <ToolTip content='Refresh ChatGPT account'>
-
-
-                                <button className='px-3.5 py-2.5 rounded-full bg-[#EDEEEF]'>
-
-                                    <RefreshCw className='w-4 h-4 text-black' />
-                                </button>
-                            </ToolTip>
-                            <ToolTip content='Logout from ChatGPT'>
-                                <button className='px-3.5 py-2.5 rounded-full bg-[#EDEEEF]'>
-
-                                    <LogOut className='w-4 h-4 text-black' />
-                                </button>
-                            </ToolTip>
-                        </div>
-                    </div>}
-
-                    <div className={`flex  gap-4 justify-end ${selectedProvider === 'codex' ? 'items-end' : 'items-start'}`}>
+                    <div className={`flex  gap-4 justify-end items-start`}>
                         <div className="relative  w-[205px] ">
                             <div className="flex flex-col justify-start ">
 
@@ -338,54 +254,7 @@ const TextProvider = ({
                         </div>
                         <div className="relative flex flex-col justify-end  items-end w-[205px] ">
                             <div className="flex flex-col justify-start w-full ">
-                                {selectedProvider === 'ollama' ? (
-                                    <>
-                                        {!useCustomOllamaUrl ? (
-                                            <button
-                                                type="button"
-                                                onClick={() => {
-                                                    onInputChange(true, 'USE_CUSTOM_URL');
-                                                    if (!currentOllamaUrl) {
-                                                        onInputChange('http://localhost:11434', 'OLLAMA_URL');
-                                                    }
-                                                }}
-                                                className="mt-8 py-2.5 bg-[#EDEEEF] px-3.5 w-fit rounded-[48px] text-xs font-semibold text-[#101323] transition-all duration-200 border border-[#EDEEEF] hover:bg-[#E8F0FF]/90 focus:ring-2 focus:ring-blue-500/20"
-                                            >
-                                                Use Ollama URL
-                                            </button>
-                                        ) : (
-                                            <>
-                                                <label className="block text-sm font-medium capitalize text-gray-700 mb-2">
-                                                    Ollama URL
-                                                </label>
-                                                <div className="relative">
-                                                    <input
-                                                        type="text"
-                                                        value={currentOllamaUrl}
-                                                        onChange={(e) => onApiKeyChange(selectedProvider, e.target.value)}
-                                                        className="w-full px-2 py-3 outline-none border  border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-colors"
-                                                        placeholder="http://localhost:11434"
-                                                    />
-                                                </div>
-                                                <button
-                                                    type="button"
-                                                    onClick={() => {
-                                                        onInputChange(false, 'USE_CUSTOM_URL');
-                                                        onInputChange('http://localhost:11434', 'OLLAMA_URL');
-                                                    }}
-                                                    className="mt-2 text-xs font-medium text-[#4B5563] underline underline-offset-2"
-                                                >
-                                                    Use default Ollama URL
-                                                </button>
-                                            </>
-                                        )}
-                                    </>
-                                ) : selectedProvider === 'codex' ?
-                                    <>
-                                        <button className='px-3.5 py-2.5 bg-[#EDEEEF]  mt-auto rounded-[58px] w-full  text-xs font-medium text-[#101323]'>Sign in with ChatGPT</button>
-                                    </>
-                                    : (
-                                        <>
+                                <>
                                             <label className="block text-sm font-medium capitalize text-gray-700 mb-2">
                                                 {selectedProvider === 'custom' ? 'Custom LLM API Key' : `${llmConfig.LLM} API Key`}
                                             </label>
@@ -421,15 +290,13 @@ const TextProvider = ({
                             </div>
 
 
-                            {selectedProvider !== 'ollama' && selectedProvider !== 'codex' && (!modelsChecked || (modelsChecked && availableModels.length === 0)) && (
+                            {(!modelsChecked || (modelsChecked && availableModels.length === 0)) && (
 
                                 <button
                                     onClick={fetchAvailableModels}
                                     disabled={
                                         modelsLoading ||
                                         (selectedProvider === 'openai' && !currentApiKey) ||
-                                        (selectedProvider === 'google' && !currentApiKey) ||
-                                        (selectedProvider === 'anthropic' && !currentApiKey) ||
                                         (selectedProvider === 'custom' && !currentCustomUrl)
                                     }
                                     className={`mt-4 py-2.5 bg-[#EDEEEF] px-3.5 w-fit  rounded-[48px] text-xs font-semibold text-[#101323] transition-all duration-200 border ${modelsLoading
@@ -456,7 +323,7 @@ const TextProvider = ({
                             <div className="w-[205px]">
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-3">
-                                        {selectedProvider === 'ollama' ? 'Choose a supported model' : `Select ${modelLabel} Model`}
+                                        Select {modelLabel} Model
                                     </label>
                                     <div className="w-full">
                                         <Popover

@@ -29,37 +29,12 @@ export const getLLMConfigValidationError = (
     if (!isProvided(llmConfig.OPENAI_MODEL)) {
       return 'No OpenAI model selected. Use "Check models" after entering your API key, then choose a model.';
     }
-  } else if (llm === "google") {
-    if (!isProvided(llmConfig.GOOGLE_API_KEY)) {
-      return "Google API key is required.";
-    }
-    if (!isProvided(llmConfig.GOOGLE_MODEL)) {
-      return 'No Google model selected. Use "Check models" after entering your API key, then choose a model.';
-    }
-  } else if (llm === "anthropic") {
-    if (!isProvided(llmConfig.ANTHROPIC_API_KEY)) {
-      return "Anthropic API key is required.";
-    }
-    if (!isProvided(llmConfig.ANTHROPIC_MODEL)) {
-      return 'No Anthropic model selected. Use "Check models" after entering your API key, then choose a model.';
-    }
-  } else if (llm === "ollama") {
-    if (!isProvided(llmConfig.OLLAMA_URL)) {
-      return "Ollama server URL is required.";
-    }
-    if (!isProvided(llmConfig.OLLAMA_MODEL)) {
-      return "Select an Ollama model. If none appear, confirm Ollama is running and reachable.";
-    }
   } else if (llm === "custom") {
     if (!isProvided(llmConfig.CUSTOM_LLM_URL)) {
       return "Enter your custom LLM endpoint URL (OpenAI-compatible).";
     }
     if (!isProvided(llmConfig.CUSTOM_MODEL)) {
       return 'No model selected for your custom endpoint. Use "Check models" after entering the URL, then choose a model.';
-    }
-  } else if (llm === "codex") {
-    if (!isProvided(llmConfig.CODEX_MODEL)) {
-      return "Select a Codex model.";
     }
   } else {
     return "Unsupported or unknown text provider.";
@@ -85,16 +60,6 @@ export const getLLMConfigValidationError = (
       case "gpt-image-1.5":
         if (!isProvided(llmConfig.OPENAI_API_KEY)) {
           return "OpenAI API key is required for GPT Image 1.5.";
-        }
-        break;
-      case "gemini_flash":
-        if (!isProvided(llmConfig.GOOGLE_API_KEY)) {
-          return "Google API key is required for Gemini Flash image generation.";
-        }
-        break;
-      case "nanobanana_pro":
-        if (!isProvided(llmConfig.GOOGLE_API_KEY)) {
-          return "Google API key is required for NanoBanana Pro.";
         }
         break;
       case "comfyui":
